@@ -1,0 +1,63 @@
+// Prisma Client generator configuration
+generator client {
+    provider = "prisma-client-js"
+}
+
+// Database connection configuration
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+// User model: Represents a user in the system
+model User {
+    id        String   @id @default(uuid()) // Unique identifier
+    email     String   @unique // User's email (must be unique)
+    name      String? // Optional: User's full name
+    password  String // User's password (hashed in practice)
+    role      String   @default("user") // User role (default: "user")
+    status    String   @default("active") // User status (default: "active")
+    phone     String? // Optional: User's phone number
+    createdAt DateTime @default(now()) // Timestamp: When the user was created
+    updatedAt DateTime @updatedAt // Timestamp: When the user was last updated
+
+    @@map("users") // Maps to the "users" table in the database
+}
+
+// Listes model: Represents a list of words (e.g., study lists)
+model Lists {
+    id        String   @id @default(uuid()) // Unique identifier
+    name      String // Name of the list
+    mots      Words[]  @relation("ListeWords") // Many-to-many relation with Words
+    createdAt DateTime @default(now()) // Timestamp: When the list was created
+    updatedAt DateTime @updatedAt // Timestamp: When the list was last updated
+
+    @@map("lists") // Maps to the "lists" table in the database
+}
+
+// Words model: Represents a word in the library (Japanese words in this case)
+model Words {
+    id         String       @id @default(uuid()) // Unique identifier
+    mot        String // Word in French or another language
+    kanji      String // Kanji representation (if applicable)
+    hiragana   String // Hiragana representation
+    romaji     String // Romaji (Latin alphabet) representation
+    definition String // Definition or translation of the word
+    listes     Lists[]     @relation("ListeWords") // Many-to-many relation with Listes
+    categories Categories[] @relation("CategoryWords") // Many-to-many relation with Categories
+    createdAt  DateTime     @default(now()) // Timestamp: When the word was created
+    updatedAt  DateTime     @updatedAt // Timestamp: When the word was last updated
+
+    @@map("words") // Maps to the "words" table in the database
+}
+
+// Categories model: Represents a category for grouping words
+model Categories {
+    id        String   @id @default(uuid()) // Unique identifier
+    name      String // Name of the category
+    mots      Words[]  @relation("CategoryWords") // Many-to-many relation with Words
+    createdAt DateTime @default(now()) // Timestamp: When the category was created
+    updatedAt DateTime @updatedAt // Timestamp: When the category was last updated
+
+    @@map("categories") // Maps to the "categories" table in the database
+}
