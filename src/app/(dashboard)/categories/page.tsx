@@ -3,7 +3,7 @@ import { UserPlus } from "lucide-react";
 import AddModal from "@/components/Words/AddModal";
 import { useState } from "react";
 
-export default function Users() {
+export default function Categories() {
   const [open, setOpen] = useState(false);
   
   return (
@@ -13,44 +13,32 @@ export default function Users() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Mots
+              Categories
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Gérez les mots de votre application
+              Gérez les categories de votre application
             </p>
           </div>
           <AddModal />
-          {/* <button
-            className="flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
-            onClick={() => {
-              setOpen(true);
-            }}
-          >
-            <UserPlus className="w-5 h-5" />
-            Ajouter un mot
-          </button> */}
         </div>
       </div>
 
       {/* Content */}
       <div className="p-8">
-        {/* Users Table */}
+        {/* Categories Table */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    Mot
+                    Nom
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    Contact
+                    Créé le
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    Rôle
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    Statut
+                    Mis à jour le
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                     Actions

@@ -5,11 +5,7 @@ import {
   Home,
   BarChart3,
   Users,
-  Settings,
   FileText,
-  Calendar,
-  MessageSquare,
-  Bell,
   ChevronLeft,
   ChevronRight,
   LogOut
@@ -24,9 +20,6 @@ export default function Sidebar({ activePage = 'dashboard' }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { user } = useAuth();
 
-  console.log(user?.name.split(' ')[0].charAt(0))
-  console.log(user?.name.split(' ')[1].charAt(0))
-
 const initialUser = user?.name
   ?.split(' ')
   .filter(part => part.length > 0)
@@ -38,11 +31,7 @@ const initialUser = user?.name
     { id: 'dashboard', label: 'Tableau de bord', icon: Home, href: '/' },
     { id: 'library', label: 'Bibliotheque', icon: BarChart3, href: '/library' },
     { id: 'users', label: 'Utilisateurs', icon: Users, href: '/users' },
-    // { id: 'documents', label: 'Documents', icon: FileText, href: '/documents' },
-    // { id: 'calendar', label: 'Calendrier', icon: Calendar, href: '/calendar' },
-    // { id: 'messages', label: 'Messages', icon: MessageSquare, href: '/messages' },
-    // { id: 'notifications', label: 'Notifications', icon: Bell, href: '/notifications' },
-    // { id: 'settings', label: 'Paramètres', icon: Settings, href: '/settings' },
+    { id: 'categories', label: 'Categories', icon: FileText, href: '/categories' },
   ];
 
   return (
@@ -74,7 +63,7 @@ const initialUser = user?.name
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activePage === item.id;
-
+          
           return (
             <a
               key={item.id}

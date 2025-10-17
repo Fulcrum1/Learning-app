@@ -28,7 +28,7 @@ model User {
 model Lists {
     id        String   @id @default(uuid()) // Unique identifier
     name      String // Name of the list
-    mots      Words[]  @relation("ListeWords") // Many-to-many relation with Words
+    words      Words[]  @relation("ListeWords") // Many-to-many relation with Words
     createdAt DateTime @default(now()) // Timestamp: When the list was created
     updatedAt DateTime @updatedAt // Timestamp: When the list was last updated
 
@@ -37,16 +37,14 @@ model Lists {
 
 // Words model: Represents a word in the library (Japanese words in this case)
 model Words {
-    id         String       @id @default(uuid()) // Unique identifier
-    mot        String // Word in French or another language
-    kanji      String // Kanji representation (if applicable)
-    hiragana   String // Hiragana representation
-    romaji     String // Romaji (Latin alphabet) representation
-    definition String // Definition or translation of the word
-    listes     Lists[]     @relation("ListeWords") // Many-to-many relation with Listes
-    categories Categories[] @relation("CategoryWords") // Many-to-many relation with Categories
-    createdAt  DateTime     @default(now()) // Timestamp: When the word was created
-    updatedAt  DateTime     @updatedAt // Timestamp: When the word was last updated
+    id            String       @id @default(uuid()) // Unique identifier
+    word          String // Word in French or another language
+    translation   String // Translation of the word
+    pronunciation String // Pronunciation of the word
+    listes        Lists[]      @relation("ListeWords") // Many-to-many relation with Listes
+    categories    Categories[] @relation("CategoryWords") // Many-to-many relation with Categories
+    createdAt     DateTime     @default(now()) // Timestamp: When the word was created
+    updatedAt     DateTime     @updatedAt // Timestamp: When the word was last updated
 
     @@map("words") // Maps to the "words" table in the database
 }
@@ -55,7 +53,7 @@ model Words {
 model Categories {
     id        String   @id @default(uuid()) // Unique identifier
     name      String // Name of the category
-    mots      Words[]  @relation("CategoryWords") // Many-to-many relation with Words
+    words      Words[]  @relation("CategoryWords") // Many-to-many relation with Words
     createdAt DateTime @default(now()) // Timestamp: When the category was created
     updatedAt DateTime @updatedAt // Timestamp: When the category was last updated
 
