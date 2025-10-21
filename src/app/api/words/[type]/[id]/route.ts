@@ -11,36 +11,33 @@ type Word = {
 };
 
 interface Params {
-  params: { type: string; id: string };
+  params: {
+    type: string;
+    id: string;
+  };
 }
 
 export async function GET(
   request: Request,
-  { params }: { params: { [key: string]: string | string[] } }
+  { params }: { params: Params }
 ): Promise<NextResponse> {
-  // Type assertion to ensure type safety
-  const { type, id } = params as { type: string; id: string };
+  const { type, id } = params;
+
+  if (!id) {
+    return NextResponse.json({ error: "L'ID est requis" }, { status: 400 });
+  }
+  if (type !== "categories" && type !== "lists") {
+    return NextResponse.json(
+      {
+        error: "Type de ressource non valide. Utilisez 'categories' ou 'lists'",
+      },
+      { status: 400 }
+    );
+  }
+
   try {
-    const { type, id } = params;
-    
-    if (!id) {
-      return NextResponse.json({ error: "L'ID est requis" }, { status: 400 });
-    }
-
-    if (type !== "categories" && type !== "lists") {
-      return NextResponse.json(
-        {
-          error:
-            "Type de ressource non valide. Utilisez 'categories' ou 'lists'",
-        },
-        { status: 400 }
-      );
-    }
-
     let words: Word[] = [];
-
     if (type === "categories") {
-      // Récupérer les mots d'une catégorie
       const category = await prisma.categories.findUnique({
         where: { id },
         include: {
@@ -54,7 +51,6 @@ export async function GET(
           },
         },
       });
-
       if (category) {
         words = category.words.map((word) => ({
           ...word,
@@ -62,7 +58,6 @@ export async function GET(
         }));
       }
     } else if (type === "lists") {
-      // Récupérer les mots d'une liste
       const list = await prisma.lists.findUnique({
         where: { id },
         include: {
@@ -76,7 +71,6 @@ export async function GET(
           },
         },
       });
-
       if (list) {
         words = list.words.map((word) => ({
           ...word,
@@ -84,7 +78,6 @@ export async function GET(
         }));
       }
     }
-
     return NextResponse.json(words);
   } catch (error) {
     console.error(
