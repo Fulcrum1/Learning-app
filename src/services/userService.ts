@@ -113,8 +113,6 @@ export const userService = {
     status?: string;
     role?: string;
   } = {}) {
-    const skip = (page - 1) * limit;
-
     const where: Prisma.UserWhereInput = {};
 
     if (search) {
@@ -167,7 +165,7 @@ async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, salt);
 }
 
-// Types d'export pour une meilleure expérience TypeScript
+// Type d'export pour une meilleure expérience TypeScript
 export type User = Prisma.UserGetPayload<{
   select: {
     id: true;

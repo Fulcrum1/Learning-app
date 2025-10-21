@@ -141,14 +141,17 @@ export const bookService = {
   },
 };
 
-// Types d'export pour une meilleure expérience TypeScript
+// Type d'export pour une meilleure expérience TypeScript
 export type Book = Prisma.BookGetPayload<{
   select: {
-    [key: string]: boolean;
     id: true;
     title: true;
     author: true;
     category: true;
-    // Ajoutez ici tous les champs du modèle Book que vous utilisez
+    description: true;
+    isbn: true;
+    publishedAt: true;
+    createdAt: true;
+    updatedAt: true;
   };
 }>;
