@@ -10,9 +10,14 @@ type Word = {
   lists?: Array<{ id: string; name: string }>;
 };
 
+interface RouteParams {
+  params: { type: string; id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
 export async function GET(
   request: Request,
-  { params }: { params: { type: string; id: string } }
+  { params }: RouteParams
 ) {
   try {
     const { type, id } = params;
