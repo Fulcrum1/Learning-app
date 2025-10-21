@@ -113,6 +113,8 @@ export const userService = {
     status?: string;
     role?: string;
   } = {}) {
+    const skip = (page - 1) * limit;
+
     const where: Prisma.UserWhereInput = {};
 
     if (search) {
