@@ -10,18 +10,19 @@ type Word = {
   lists?: Array<{ id: string; name: string }>;
 };
 
-interface RouteParams {
+interface Params {
   params: { type: string; id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 export async function GET(
   request: Request,
-  { params }: RouteParams
-) {
+  { params }: { params: { [key: string]: string | string[] } }
+): Promise<NextResponse> {
+  // Type assertion to ensure type safety
+  const { type, id } = params as { type: string; id: string };
   try {
     const { type, id } = params;
-
+    
     if (!id) {
       return NextResponse.json({ error: "L'ID est requis" }, { status: 400 });
     }
