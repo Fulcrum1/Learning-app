@@ -70,6 +70,25 @@ function SingleWord({ formData, handleChange }) {
               className="border-2 border-gray-200 focus:border-purple-500 rounded-lg transition-colors text-lg"
             />
           </div>
+
+          <div className="space-y-2">
+            <Label
+              htmlFor="categories"
+              className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+            >
+              🏷️ Catégories
+            </Label>
+            <Input
+              id="categories"
+              value={formData.categories}
+              onChange={handleChange}
+              placeholder="Séparées par des virgules (ex: Verbes, Nourriture, Voyage)"
+              className="border-2 border-gray-200 focus:border-purple-500 rounded-lg transition-colors text-sm"
+            />
+            <p className="text-xs text-gray-500">
+              Séparez les catégories par des virgules pour en ajouter plusieurs
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -125,9 +144,34 @@ export default function AddModal() {
     word: "",
     translation: "",
     pronunciation: "",
+    categories: "",
     type_post: "",
   });
   const [bulkText, setBulkText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const parserTexteJaponais = (text: string) => {
+    const lines = text.trim().split("\n");
+
+    return lines.map((line) => {
+      const [translationPronunciation, word, categories] = line.split(";");
+
+      const [translation, pronunciation] = translationPronunciation.split("(");
+      const pronunciationClean = pronunciation ? pronunciation.replace(")", "").trim() : null;
+      const translationClean = translation.trim();
+
+      const categoryNames = categories
+        ? categories.split("/").map((cat) => cat.trim())
+        : [];
+
+      return {
+        word: word.trim(),
+        translation: translationClean,
+        pronunciation: pronunciationClean,
+        categoryNames, // Utilisation de categoryNames au lieu de categories
+      };
+    });
+  };
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -139,63 +183,92 @@ export default function AddModal() {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
+      
       if (mode === "single") {
-        const dataToSend = {
-          ...formData,
-          type_post: "single",
-        };
-
-        console.log("formData à envoyer:", dataToSend);
-        console.log("json formData à envoyer:", JSON.stringify(dataToSend));
+        const categoryNames = formData.categories 
+          ? formData.categories.split(",").map(c => c.trim()).filter(Boolean)
+          : [];
 
         const response = await fetch("/api/words", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(dataToSend),
+          body: JSON.stringify({
+            type_post: "single",
+            word: formData.word,
+            translation: formData.translation,
+            pronunciation: formData.pronunciation || null,
+            categoryNames
+          }),
         });
 
         if (!response.ok) {
-          throw new Error(`Erreur HTTP: ${response.status}`);
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Erreur HTTP: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("Réponse du serveur:", data);
+        console.log("Mot ajouté avec succès:", data);
 
+        // Réinitialiser le formulaire
         setFormData({
           word: "",
           translation: "",
           pronunciation: "",
+          categories: "",
           type_post: "",
         });
-      } else {
-        const dataToSend = {
-          bulkText,
-          type_post: "bulk",
-        };
 
-        console.log("bulkText à envoyer:", dataToSend);
+        // Afficher un message de succès
+        alert("Mot ajouté avec succès !");
+      } else {
+        // Mode ajout multiple
+        const parsedWords = parserTexteJaponais(bulkText);
+        
+        if (parsedWords.length === 0) {
+          throw new Error("Aucun mot valide à importer");
+        }
 
         const response = await fetch("/api/words", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(dataToSend),
+          body: JSON.stringify({
+            type_post: "bulk",
+            words: parsedWords.map(word => ({
+              word: word.word,
+              translation: word.translation,
+              pronunciation: word.pronunciation,
+              categoryNames: word.categoryNames || []
+            }))
+          }),
         });
 
         if (!response.ok) {
-          throw new Error(`Erreur HTTP: ${response.status}`);
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Erreur HTTP: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("Réponse du serveur:", data);
-
+        console.log("Mots ajoutés avec succès:", data);
+        
+        // Réinitialiser le champ de texte
         setBulkText("");
+        
+        // Afficher un message de succès
+        alert(`Import réussi : ${data.message}${data.warnings ? `\n\n${data.warnings}` : ''}`);
       }
     } catch (error) {
-      console.error("Erreur lors de l'envoi:", error);
+      console.error("Erreur lors de l'ajout des mots:", error);
+      alert(error instanceof Error 
+        ? error.message 
+        : "Une erreur est survenue lors de l'ajout des mots"
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -272,19 +345,29 @@ export default function AddModal() {
             </DialogClose>
             <Button
               onClick={handleSubmit}
+              disabled={isLoading}
               className={`rounded-lg shadow-md hover:shadow-lg transition-all ${
                 mode === "single"
                   ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
                   : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              }`}
+              } ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
             >
-              {mode === "single"
-                ? "Enregistrer le mot"
-                : "Analyser et enregistrer"}
+              {isLoading ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Traitement...
+                </span>
+              ) : mode === "single" ? (
+                "Enregistrer le mot"
+              ) : (
+                "Analyser et enregistrer"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
-}

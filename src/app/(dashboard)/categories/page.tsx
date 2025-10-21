@@ -2,10 +2,29 @@
 import { UserPlus } from "lucide-react";
 import AddModal from "@/components/Words/AddModal";
 import { useState } from "react";
+import { useEffect } from "react";
+import { Category } from "@/types/categories";
+import ShowWordsBlock from "@/components/Global/ShowWordsBlock";
 
 export default function Categories() {
   const [open, setOpen] = useState(false);
-  
+
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchWords = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        const data = await response.json();
+
+        setCategories(data.categories);
+      } catch (error) {
+        console.error("Error fetching words:", error);
+      }
+    };
+    fetchWords();
+  }, []);
+
   return (
     <>
       {/* Header */}
@@ -35,56 +54,34 @@ export default function Categories() {
                     Nom
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    Créé le
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    Mis à jour le
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              {/* <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {categories.map((category) => (
+                  <tr
+                    key={category.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold">
-                          {user.name.charAt(0)}
+                          {category.name.charAt(0)}
                         </div>
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {user.name}
+                            {category.name}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                          <Mail className="w-4 h-4" />
-                          {user.email}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                          <Phone className="w-4 h-4" />
-                          {user.phone}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div>
+                          <ShowWordsBlock type="categories" id={category.id} />
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-block px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
-                        user.status === 'active'
-                          ? 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30'
-                          : 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700'
-                      }`}>
-                        {user.status === 'active' ? 'Actif' : 'Inactif'}
-                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
@@ -98,12 +95,11 @@ export default function Categories() {
                     </td>
                   </tr>
                 ))}
-              </tbody> */}
+              </tbody>
             </table>
           </div>
         </div>
       </div>
-      {/* <AddModal /> */}
     </>
   );
 }

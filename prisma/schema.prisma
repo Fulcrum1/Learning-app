@@ -40,7 +40,7 @@ model Words {
     id            String       @id @default(uuid()) // Unique identifier
     word          String // Word in French or another language
     translation   String // Translation of the word
-    pronunciation String // Pronunciation of the word
+    pronunciation String? // Pronunciation of the word
     listes        Lists[]      @relation("ListeWords") // Many-to-many relation with Listes
     categories    Categories[] @relation("CategoryWords") // Many-to-many relation with Categories
     createdAt     DateTime     @default(now()) // Timestamp: When the word was created

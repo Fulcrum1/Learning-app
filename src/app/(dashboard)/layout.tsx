@@ -17,6 +17,7 @@ export default function DashboardLayout({
     if (pathname.startsWith('/users')) return 'users';
     if (pathname.startsWith('/analytics')) return 'analytics';
     if (pathname.startsWith('/categories')) return 'categories';
+    if (pathname.startsWith('/lists')) return 'lists';
     // if (pathname.startsWith('/calendar')) return 'calendar';
     // if (pathname.startsWith('/messages')) return 'messages';
     // if (pathname.startsWith('/notifications')) return 'notifications';
