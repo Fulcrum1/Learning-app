@@ -1,5 +1,5 @@
-import { Prisma } from '@prisma/client';
-import prisma from '@/lib/prisma';
+import { Prisma } from "@prisma/client";
+import prisma from "@/lib/prisma";
 
 // Types
 type CreateBookInput = {
@@ -46,7 +46,7 @@ export const bookService = {
   // Mettre à jour un livre
   async updateBook(id: string, data: UpdateBookInput) {
     const updateData: Prisma.BookUpdateInput = { ...data };
-    
+
     if (data.publishedAt) {
       updateData.publishedAt = new Date(data.publishedAt);
     }
@@ -68,7 +68,7 @@ export const bookService = {
   async listBooks({
     page = 1,
     limit = 10,
-    search = '',
+    search = "",
     category,
     author,
   }: {
@@ -79,19 +79,19 @@ export const bookService = {
     author?: string;
   } = {}) {
     const where: Prisma.BookWhereInput = {};
-    
+
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { author: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
+        { title: { contains: search, mode: "insensitive" } },
+        { author: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
       ];
     }
-    
+
     if (category) {
       where.category = category;
     }
-    
+
     if (author) {
       where.author = author;
     }
@@ -102,7 +102,7 @@ export const bookService = {
         where,
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { title: 'asc' },
+        orderBy: { title: "asc" },
       }),
     ]);
 
@@ -117,12 +117,12 @@ export const bookService = {
   // Obtenir toutes les catégories uniques
   async getCategories() {
     return prisma.book.findMany({
-      distinct: ['category'],
+      distinct: ["category"],
       select: {
         category: true,
       },
       orderBy: {
-        category: 'asc',
+        category: "asc",
       },
     });
   },
@@ -130,16 +130,24 @@ export const bookService = {
   // Obtenir tous les auteurs uniques
   async getAuthors() {
     return prisma.book.findMany({
-      distinct: ['author'],
+      distinct: ["author"],
       select: {
         author: true,
       },
       orderBy: {
-        author: 'asc',
+        author: "asc",
       },
     });
   },
 };
 
 // Types d'export pour une meilleure expérience TypeScript
-export type Book = Prisma.BookGetPayload<{}>;
+export type Book = Prisma.BookGetPayload<{
+  select: {
+    id: true;
+    title: true;
+    author: true;
+    category: true;
+    // Ajoutez ici tous les champs du modèle Book que vous utilisez
+  };
+}>;

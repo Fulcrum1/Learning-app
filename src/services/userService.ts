@@ -1,5 +1,5 @@
-import { Prisma } from '@prisma/client';
-import prisma from '@/lib/prisma';
+import { Prisma } from "@prisma/client";
+import prisma from "@/lib/prisma";
 
 // Types
 type CreateUserInput = {
@@ -15,7 +15,7 @@ type UpdateUserInput = {
   email?: string;
   password?: string;
   role?: string;
-  status?: 'active' | 'inactive';
+  status?: "active" | "inactive";
   phone?: string;
 };
 
@@ -24,13 +24,13 @@ export const userService = {
   // Créer un nouvel utilisateur
   async createUser(data: CreateUserInput) {
     const hashedPassword = await hashPassword(data.password);
-    
+
     return prisma.user.create({
       data: {
         email: data.email,
         name: data.name,
         password: hashedPassword,
-        role: data.role || 'user',
+        role: data.role || "user",
         phone: data.phone,
       },
       select: {
@@ -72,7 +72,7 @@ export const userService = {
   // Mettre à jour un utilisateur
   async updateUser(id: string, data: UpdateUserInput) {
     const updateData: Prisma.UserUpdateInput = { ...data };
-    
+
     if (data.password) {
       updateData.password = await hashPassword(data.password);
     }
@@ -103,7 +103,7 @@ export const userService = {
   async listUsers({
     page = 1,
     limit = 10,
-    search = '',
+    search = "",
     status,
     role,
   }: {
@@ -114,18 +114,18 @@ export const userService = {
     role?: string;
   } = {}) {
     const where: Prisma.UserWhereInput = {};
-    
+
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
       ];
     }
-    
+
     if (status) {
-      where.status = status as any;
+      where.status = status as "active" | "inactive";
     }
-    
+
     if (role) {
       where.role = role;
     }
@@ -145,7 +145,7 @@ export const userService = {
           phone: true,
           createdAt: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       }),
     ]);
 
@@ -160,7 +160,7 @@ export const userService = {
 
 // Fonction utilitaire pour hacher les mots de passe
 async function hashPassword(password: string): Promise<string> {
-  const bcrypt = await import('bcryptjs');
+  const bcrypt = await import("bcryptjs");
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);
 }
