@@ -117,8 +117,12 @@ export const userService = {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
+        // Postgres
+        // { name: { contains: search, mode: "insensitive" } },
+        // { email: { contains: search, mode: "insensitive" } },
+        // MySQL
+        { name: { contains: search } },
+        { email: { contains: search } },
       ];
     }
 
