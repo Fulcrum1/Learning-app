@@ -24,7 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { Category } from "@/types/categories";
-import { Word } from "@/types/words";
+import { Word } from "@/types/word";
 
 export default function AddModal() {
   const [formData, setFormData] = useState({
