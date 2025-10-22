@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     });
     
     // Formater la réponse pour inclure les catégories avec les mots
-    const formattedWords = words.map(word => ({
+    const formattedWords = words.map((word: Word) => ({
       ...word,
       categories: word.categories || []
     }));
