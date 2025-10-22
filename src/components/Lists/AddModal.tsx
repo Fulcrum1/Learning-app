@@ -34,8 +34,8 @@ export default function AddModal() {
   });
 
   const [activeTab, setActiveTab] = useState("manual");
-  const [selectedWords, setSelectedWords] = useState<number[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const [selectedWords, setSelectedWords] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [randomCount, setRandomCount] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
