@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { User } from "@/types/users";
 
 export function useAuth() {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     const checkAuth = () => {
@@ -54,7 +55,7 @@ export function useAuth() {
     }, []);
 
     // Fonctions utilitaires
-    const login = (userData: any, token: string) => {
+    const login = (userData: User, token: string) => {
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', token);
         setUser(userData);
