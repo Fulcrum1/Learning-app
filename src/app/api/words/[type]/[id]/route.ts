@@ -45,7 +45,7 @@ export async function GET(
         },
       });
       if (category) {
-        words = category.words.map((word) => ({
+        words = category.words.map((word: Word) => ({
           ...word,
           categories: [{ id: category.id, name: category.name }],
         }));
@@ -65,7 +65,7 @@ export async function GET(
         },
       });
       if (list) {
-        words = list.words.map((word) => ({
+        words = list.words.map((word: Word) => ({
           ...word,
           lists: [{ id: list.id, name: list.name }],
         }));
