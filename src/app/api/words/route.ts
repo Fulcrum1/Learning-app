@@ -1,7 +1,7 @@
 // app/api/words/route.ts
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { Word, CreateWordDto } from "@/types/word";
+import { Word, CreateWordDto, Category } from "@/types/word";
 
 export async function GET(request: Request) {
   try {
@@ -64,7 +64,7 @@ async function handleCategories(categoryNames: string[] = []): Promise<{id: stri
     if (!name) continue;
     
     // Vérifier si la catégorie existe déjà (insensible à la casse)
-    const existingCategory = allCategories.find(cat => 
+    const existingCategory = allCategories.find((cat: Category) => 
       cat.name.toLowerCase() === name.toLowerCase()
     );
 
