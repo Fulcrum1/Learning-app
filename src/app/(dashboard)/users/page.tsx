@@ -1,16 +1,18 @@
-'use client'
-import { UserPlus, Mail, Phone } from 'lucide-react';
-import { useState, useEffect } from 'react';
+"use client";
+
+import { UserPlus, Mail, Phone } from "lucide-react";
+import { useState, useEffect } from "react";
+import User from "@/types/user";
 
 export default function Users() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await fetch('/api/users', {
-        method: 'GET',
+      const response = await fetch("/api/users", {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
       const data = await response.json();
@@ -19,7 +21,7 @@ export default function Users() {
 
     fetchUsers();
   }, []); // Le tableau vide [] signifie que l'effet ne s'exécute qu'une fois, au montage
-  
+
   return (
     <>
       {/* Header */}
@@ -67,15 +69,18 @@ export default function Users() {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <tr
+                    key={user.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold">
-                          {user.name.charAt(0)}
+                          {user?.name?.charAt(0)}
                         </div>
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {user.name}
+                            {user?.name}
                           </p>
                         </div>
                       </div>
@@ -84,25 +89,28 @@ export default function Users() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                           <Mail className="w-4 h-4" />
-                          {user.email}
+                          {user?.email}
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                           <Phone className="w-4 h-4" />
-                          {user.phone}
+                          {user?.phone}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-block px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
-                        {user.role}
+                        {user?.role}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${user.status === 'active'
-                        ? 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30'
-                        : 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700'
-                        }`}>
-                        {user.status === 'active' ? 'Actif' : 'Inactif'}
+                      <span
+                        className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
+                          user?.status === "active"
+                            ? "text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30"
+                            : "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700"
+                        }`}
+                      >
+                        {user.status === "active" ? "Actif" : "Inactif"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
