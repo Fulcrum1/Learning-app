@@ -103,7 +103,9 @@ export default function AddModal() {
   };
 
   const selectAllFiltered = () => {
-    const filteredIds = filteredWords.map((w) => w.id);
+    const filteredIds = filteredWords
+      .map((w) => w.id)
+      .filter((id): id is string => id !== undefined);
     setSelectedWords(filteredIds);
   };
 
