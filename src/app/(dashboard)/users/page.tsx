@@ -1,8 +1,8 @@
 "use client";
 
+import { User } from "@prisma/client";
 import { UserPlus, Mail, Phone } from "lucide-react";
 import { useState, useEffect } from "react";
-import User from "@/types/user";
 
 export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
