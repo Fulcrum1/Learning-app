@@ -59,7 +59,7 @@ export default function Categories() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {categories.map((category) => (
+                {categories.map((category: Category) => (
                   <tr
                     key={category.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
