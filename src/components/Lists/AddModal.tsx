@@ -23,7 +23,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { Category } from "@/types/categories";
+import { Category, CategoryNameOnly } from "@/types/categories";
 import { Word } from "@/types/word";
 
 export default function AddModal() {
@@ -63,13 +63,18 @@ export default function AddModal() {
     return words.filter((word) => {
       const matchesSearch =
         searchQuery === "" ||
-        (word.word && word.word.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (word.translation && word.translation.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (word.pronunciation && word.pronunciation.toLowerCase().includes(searchQuery.toLowerCase()));
+        (word.word &&
+          word.word.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (word.translation &&
+          word.translation.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (word.pronunciation &&
+          word.pronunciation.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      const matchesCategory = 
-        filterCategory === "all" || 
-        (word.categories && word.categories.some((cat: Category) => cat.name === filterCategory));
+      const matchesCategory =
+        filterCategory === "all" ||
+        (word.categories as CategoryNameOnly[]).some(
+          (cat) => cat.name === filterCategory
+        );
 
       return matchesSearch && matchesCategory;
     });
@@ -109,9 +114,7 @@ export default function AddModal() {
       case "manual":
         return words.filter((w) => selectedWords.includes(w.id));
       case "category":
-        return words.filter((w) =>
-          selectedCategories.includes(w.category)
-        );
+        return words.filter((w) => selectedCategories.includes(w.category));
       case "random":
         const shuffled = [...words].sort(() => Math.random() - 0.5);
         return shuffled.slice(0, Math.min(randomCount, words.length));
@@ -124,39 +127,40 @@ export default function AddModal() {
     try {
       const selectedWordsData = getSelectedWordsFromMethod();
       // Extraire uniquement les IDs des mots
-      const wordIds = selectedWordsData.map(word => word.id);
-      
+      const wordIds = selectedWordsData.map((word) => word.id);
+
       const dataToSubmit = {
         name: formData.name,
-        description: formData.description || '',
+        description: formData.description || "",
         words: wordIds, // Envoyer uniquement les IDs
         type: activeTab,
       };
-      
-      console.log('Données envoyées:', dataToSubmit);
-      
-      const response = await fetch('/api/lists', {
-        method: 'POST',
+
+      console.log("Données envoyées:", dataToSubmit);
+
+      const response = await fetch("/api/lists", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(dataToSubmit),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la création de la liste');
+        throw new Error(
+          errorData.error || "Erreur lors de la création de la liste"
+        );
       }
 
       const result = await response.json();
-      console.log('Liste créée avec succès:', result);
-      
+      console.log("Liste créée avec succès:", result);
+
       // Réinitialiser le formulaire ou fermer la modal
       // onClose(); // Décommentez si vous avez une fonction onClose
-      
+
       // Rafraîchir les listes si nécessaire
       // onListCreated(); // Décommentez si vous avez une fonction de rafraîchissement
-      
     } catch (error) {
       console.error("Erreur lors de l'envoi:", error);
       // Afficher une notification d'erreur à l'utilisateur
@@ -363,7 +367,9 @@ export default function AddModal() {
                                 <Check size={10} />
                               </div>
                             )}
-                            <div className="text-lg font-bold">{word.translation}</div>
+                            <div className="text-lg font-bold">
+                              {word.translation}
+                            </div>
                             <div className="text-xs text-gray-600 truncate">
                               {word.pronunciation}
                             </div>
@@ -399,8 +405,8 @@ export default function AddModal() {
                   <div className="max-h-[400px] overflow-y-auto pr-2">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pb-4">
                       {categories.map((cat) => {
-                        const count = words.filter(
-                          (w) => w.categories?.some((c) => c.name === cat.name)
+                        const count = words.filter((w) =>
+                          w.categories?.some((c) => c.name === cat.name)
                         ).length;
                         return (
                           <div
@@ -450,13 +456,11 @@ export default function AddModal() {
                     />
                     <div className="mt-4 text-sm text-gray-600 space-y-1">
                       <p>
-                        <strong>Total disponible:</strong> {words.length}{" "}
-                        mots
+                        <strong>Total disponible:</strong> {words.length} mots
                       </p>
                       <p>
                         <strong>Sélection:</strong>{" "}
-                        {Math.min(randomCount, words.length)} mots
-                        aléatoires
+                        {Math.min(randomCount, words.length)} mots aléatoires
                       </p>
                       <p className="text-xs text-gray-500 mt-2">
                         La sélection sera différente à chaque validation
@@ -489,10 +493,7 @@ export default function AddModal() {
                     ).length
                   } mot(s) dans ${selectedCategories.length} catégorie(s)`}
                 {activeTab === "random" &&
-                  `${Math.min(
-                    randomCount,
-                    words.length
-                  )} mot(s) aléatoire(s)`}
+                  `${Math.min(randomCount, words.length)} mot(s) aléatoire(s)`}
               </p>
             </div>
           </div>
