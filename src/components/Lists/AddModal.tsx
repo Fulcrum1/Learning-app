@@ -23,8 +23,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { Category, CategoryNameOnly } from "@/types/categories";
-import { Word } from "@/types/word";
+import { Category, Word } from "@/types/word";
 
 export default function AddModal() {
   const [formData, setFormData] = useState({
@@ -32,14 +31,14 @@ export default function AddModal() {
     description: "",
     words: [],
   });
-
-  const [activeTab, setActiveTab] = useState("manual");
+  const [activeTab, setActiveTab] = useState<"manual" | "category" | "random">(
+    "manual"
+  );
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [randomCount, setRandomCount] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
-
   const [words, setWords] = useState<Word[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -48,7 +47,6 @@ export default function AddModal() {
       try {
         const response = await fetch("/api/words");
         const data = await response.json();
-
         setCategories(data.categories);
         setWords(data.words);
       } catch (error) {
@@ -58,7 +56,6 @@ export default function AddModal() {
     fetchWords();
   }, []);
 
-  // Filtrage des mots avec recherche et catégorie
   const filteredWords = useMemo(() => {
     return words.filter((word) => {
       const matchesSearch =
@@ -72,9 +69,8 @@ export default function AddModal() {
 
       const matchesCategory =
         filterCategory === "all" ||
-        (word.categories as CategoryNameOnly[]).some(
-          (cat) => cat.name === filterCategory
-        );
+        (word.categories &&
+          word.categories.some((cat) => cat.name === filterCategory));
 
       return matchesSearch && matchesCategory;
     });
@@ -96,9 +92,11 @@ export default function AddModal() {
     );
   };
 
-  const toggleCategorySelection = (cat: string) => {
+  const toggleCategorySelection = (cat: Category) => {
     setSelectedCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(cat.name)
+        ? prev.filter((c) => c !== cat.name)
+        : [...prev, cat.name]
     );
   };
 
@@ -118,7 +116,11 @@ export default function AddModal() {
       case "manual":
         return words.filter((w) => selectedWords.includes(w.id));
       case "category":
-        return words.filter((w) => selectedCategories.includes(w.category));
+        return words.filter(
+          (w) =>
+            w.categories &&
+            w.categories.some((cat) => selectedCategories.includes(cat.name))
+        );
       case "random":
         const shuffled = [...words].sort(() => Math.random() - 0.5);
         return shuffled.slice(0, Math.min(randomCount, words.length));
@@ -130,18 +132,14 @@ export default function AddModal() {
   const handleSubmit = async () => {
     try {
       const selectedWordsData = getSelectedWordsFromMethod();
-      // Extraire uniquement les IDs des mots
       const wordIds = selectedWordsData.map((word) => word.id);
-
       const dataToSubmit = {
         name: formData.name,
         description: formData.description || "",
-        words: wordIds, // Envoyer uniquement les IDs
+        words: wordIds,
         type: activeTab,
       };
-
       console.log("Données envoyées:", dataToSubmit);
-
       const response = await fetch("/api/lists", {
         method: "POST",
         headers: {
@@ -149,26 +147,16 @@ export default function AddModal() {
         },
         body: JSON.stringify(dataToSubmit),
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
           errorData.error || "Erreur lors de la création de la liste"
         );
       }
-
       const result = await response.json();
       console.log("Liste créée avec succès:", result);
-
-      // Réinitialiser le formulaire ou fermer la modal
-      // onClose(); // Décommentez si vous avez une fonction onClose
-
-      // Rafraîchir les listes si nécessaire
-      // onListCreated(); // Décommentez si vous avez une fonction de rafraîchissement
     } catch (error) {
       console.error("Erreur lors de l'envoi:", error);
-      // Afficher une notification d'erreur à l'utilisateur
-      // toast.error(error.message); // Si vous utilisez react-hot-toast
     }
   };
 
@@ -197,7 +185,6 @@ export default function AddModal() {
               </DialogDescription>
             </DialogHeader>
           </div>
-
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -233,8 +220,6 @@ export default function AddModal() {
                 />
               </div>
             </div>
-
-            {/* Tabs */}
             <div className="flex border-b border-gray-200">
               <button
                 onClick={() => setActiveTab("manual")}
@@ -270,13 +255,9 @@ export default function AddModal() {
                 Aléatoire
               </button>
             </div>
-
-            {/* Content Area */}
             <div className="space-y-3">
-              {/* Manual Selection */}
               {activeTab === "manual" && (
                 <>
-                  {/* Search and Filter Bar */}
                   <div className="bg-gray-50 p-4 rounded-lg space-y-3">
                     <div className="flex gap-3">
                       <div className="flex-1 relative">
@@ -313,7 +294,6 @@ export default function AddModal() {
                         ))}
                       </select>
                     </div>
-
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-gray-600">
                         {filteredWords.length} mot(s) affiché(s) •{" "}
@@ -343,8 +323,6 @@ export default function AddModal() {
                       </div>
                     </div>
                   </div>
-
-                  {/* Words Grid with Virtual Scrolling */}
                   <div className="h-[350px] overflow-y-auto border border-gray-200 rounded-lg">
                     {filteredWords.length === 0 ? (
                       <div className="p-8 text-center text-gray-500">
@@ -374,15 +352,19 @@ export default function AddModal() {
                             <div className="text-lg font-bold">
                               {word.translation}
                             </div>
-                            <div className="text-xs text-gray-600 truncate">
-                              {word.pronunciation}
-                            </div>
+                            {word.pronunciation && (
+                              <div className="text-xs text-gray-600 truncate">
+                                {word.pronunciation}
+                              </div>
+                            )}
                             <div className="text-sm text-gray-800 truncate">
                               {word.word}
                             </div>
-                            <div className="text-xs text-purple-600 mt-1 font-medium truncate">
-                              {word.categorie}
-                            </div>
+                            {word.categories && word.categories.length > 0 && (
+                              <div className="text-xs text-purple-600 mt-1 font-medium truncate">
+                                {word.categories[0].name}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -390,39 +372,42 @@ export default function AddModal() {
                   </div>
                 </>
               )}
-
-              {/* Category Selection */}
               {activeTab === "category" && (
                 <>
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <div className="text-sm text-gray-600">
-                      {selectedCategories.length} catégorie(s) sélectionnée(s) •{" "}
+                      {selectedCategories.length} catégorie(s) sélectionnée(s) •
                       {
-                        words.filter((w) =>
-                          selectedCategories.includes(w.categories)
+                        words.filter(
+                          (w) =>
+                            w.categories &&
+                            w.categories.some((c) =>
+                              selectedCategories.includes(c.name)
+                            )
                         ).length
                       }{" "}
                       mot(s)
                     </div>
                   </div>
-
                   <div className="max-h-[400px] overflow-y-auto pr-2">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pb-4">
                       {categories.map((cat) => {
-                        const count = words.filter((w) =>
-                          w.categories?.some((c) => c.name === cat.name)
+                        const count = words.filter(
+                          (w) =>
+                            w.categories &&
+                            w.categories.some((c) => c.name === cat.name)
                         ).length;
                         return (
                           <div
                             key={cat.name}
                             onClick={() => toggleCategorySelection(cat)}
                             className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all text-center ${
-                              selectedCategories.includes(cat)
+                              selectedCategories.includes(cat.name)
                                 ? "border-purple-500 bg-purple-50 shadow-md"
                                 : "border-gray-200 hover:border-purple-300 hover:shadow"
                             }`}
                           >
-                            {selectedCategories.includes(cat) && (
+                            {selectedCategories.includes(cat.name) && (
                               <div className="absolute top-2 right-2 bg-purple-600 text-white rounded-full p-1">
                                 <Check size={14} />
                               </div>
@@ -440,8 +425,6 @@ export default function AddModal() {
                   </div>
                 </>
               )}
-
-              {/* Random Selection */}
               {activeTab === "random" && (
                 <div className="space-y-4">
                   <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border border-purple-200">
@@ -471,7 +454,6 @@ export default function AddModal() {
                       </p>
                     </div>
                   </div>
-
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <p className="text-sm text-yellow-800">
                       <strong>💡 Astuce:</strong> Les mots seront sélectionnés
@@ -481,8 +463,6 @@ export default function AddModal() {
                 </div>
               )}
             </div>
-
-            {/* Selection Summary */}
             <div className="bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg p-4 border border-gray-200">
               <p className="text-sm font-semibold text-gray-700">
                 📊 Résumé de la sélection:
@@ -490,18 +470,25 @@ export default function AddModal() {
               <p className="text-sm text-gray-600 mt-1">
                 {activeTab === "manual" &&
                   `${selectedWords.length} mot(s) sélectionné(s)`}
-                {activeTab === "category" &&
-                  `${
-                    words.filter((w) =>
-                      selectedCategories.includes(w.categories)
-                    ).length
-                  } mot(s) dans ${selectedCategories.length} catégorie(s)`}
+                {activeTab === "category" && (
+                  <>
+                    {
+                      words.filter(
+                        (w) =>
+                          w.categories &&
+                          w.categories.some((c) =>
+                            selectedCategories.includes(c.name)
+                          )
+                      ).length
+                    }{" "}
+                    mot(s) dans {selectedCategories.length} catégorie(s)
+                  </>
+                )}
                 {activeTab === "random" &&
                   `${Math.min(randomCount, words.length)} mot(s) aléatoire(s)`}
               </p>
             </div>
           </div>
-
           <DialogFooter className="bg-gray-50 p-6 gap-3 border-t flex-shrink-0">
             <DialogClose asChild>
               <Button

@@ -1,5 +1,5 @@
 export interface Word {
-  id?: string; // UUID généré par Prisma
+  id: string; // UUID généré par Prisma
   word: string;
   translation: string;
   pronunciation?: string | null;
