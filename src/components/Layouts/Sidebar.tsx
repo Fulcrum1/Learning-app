@@ -24,13 +24,22 @@ interface SidebarProps {
 export default function Sidebar({ activePage = "dashboard" }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { user } = useAuth();
+  const { logout } = useAuth();
 
   const initialUser = user?.name
+<<<<<<< Updated upstream
     ?.split(" ")
     .filter((part) => part.length > 0)
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
+=======
+    ?.split(' ')
+    .filter(part => part.length > 0)
+    .slice(0, 2)
+    .map(part => part.charAt(0).toUpperCase())
+    .join('');
+>>>>>>> Stashed changes
 
   const menuCategories = [
     {
@@ -74,6 +83,7 @@ export default function Sidebar({ activePage = "dashboard" }: SidebarProps) {
     },
   ];
 
+
   return (
     <div
       className={`h-screen bg-gray-900 text-white flex flex-col transition-all duration-300 ${
@@ -100,6 +110,7 @@ export default function Sidebar({ activePage = "dashboard" }: SidebarProps) {
       </div>
 
       {/* Navigation */}
+<<<<<<< Updated upstream
       <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
         {menuCategories.map((category) => (
           <div key={category.id}>
@@ -137,6 +148,30 @@ export default function Sidebar({ activePage = "dashboard" }: SidebarProps) {
             </div>
           </div>
         ))}
+=======
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activePage === item.id;
+
+          return (
+            <a
+              key={item.id}
+              href={item.href}
+              className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 ${isActive
+                ? 'bg-indigo-600 text-white shadow-lg'
+                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                }`}
+              title={collapsed ? item.label : ''}
+            >
+              <Icon className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && (
+                <span className="font-medium">{item.label}</span>
+              )}
+            </a>
+          );
+        })}
+>>>>>>> Stashed changes
       </nav>
 
       {/* User Profile */}
@@ -158,10 +193,17 @@ export default function Sidebar({ activePage = "dashboard" }: SidebarProps) {
         </div>
 
         <button
+<<<<<<< Updated upstream
           className={`mt-3 w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-red-600/20 hover:text-red-400 transition-all ${
             collapsed ? "justify-center" : ""
           }`}
           title={collapsed ? "Déconnexion" : ""}
+=======
+          onClick={logout}
+          className={`mt-3 w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-red-600/20 hover:text-red-400 transition-all ${collapsed ? 'justify-center' : ''
+            }`}
+          title={collapsed ? 'Déconnexion' : ''}
+>>>>>>> Stashed changes
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           {!collapsed && <span className="font-medium">Déconnexion</span>}

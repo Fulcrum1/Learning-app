@@ -1,39 +1,35 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Vérification de l'authentification
+  const { user, loading } = useAuth(); // Utilisez loading de useAuth
+
   useEffect(() => {
-    // Liste des routes publiques qui ne nécessitent pas d'authentification
+    // Attendre que le chargement soit terminé
+    if (loading) return;
+
     const publicPaths = ['/login', '/register', '/forgot-password'];
     const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
-    
-    // Si l'utilisateur n'est pas connecté et n'est pas sur une route publique, rediriger vers /login
-    if (!user && !isLoading && !isPublicPath) {
+
+    // Redirection si non authentifié
+    if (!user && !isPublicPath) {
       router.push('/login');
+      return;
     }
-    
-    // Si l'utilisateur est connecté et sur une page de connexion, rediriger vers le tableau de bord
+
+    // Redirection si déjà authentifié sur page de login
     if (user && (pathname === '/login' || pathname === '/register')) {
       router.push('/');
     }
-  }, [user, isLoading, pathname, router]);
+  }, [user, loading, pathname, router]);
 
-  // Mettre à jour l'état de chargement après la vérification initiale
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-  
-  // Afficher un indicateur de chargement pendant la vérification d'authentification
-  if (isLoading) {
+  // Afficher le spinner pendant le chargement
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
