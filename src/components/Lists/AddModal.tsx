@@ -80,7 +80,9 @@ export default function AddModal() {
     });
   }, [words, searchQuery, filterCategory]);
 
-  const handleChange = (e) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -88,13 +90,13 @@ export default function AddModal() {
     }));
   };
 
-  const toggleWordSelection = (id) => {
+  const toggleWordSelection = (id: string) => {
     setSelectedWords((prev) =>
       prev.includes(id) ? prev.filter((wid) => wid !== id) : [...prev, id]
     );
   };
 
-  const toggleCategorySelection = (cat) => {
+  const toggleCategorySelection = (cat: string) => {
     setSelectedCategories((prev) =>
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
