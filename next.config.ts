@@ -1,6 +1,5 @@
 // next.config.ts
 import type { NextConfig } from "next";
-import next from "next";
 
 const allowedOrigins = process.env.CORS_ORIGINS
   ? JSON.parse(process.env.CORS_ORIGINS)
