@@ -14,7 +14,14 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Plus, Languages, FileText } from "lucide-react";
 
-function SingleWord({ formData, handleChange }) {
+interface FormData {
+  word: string;
+  translation: string;
+  pronunciation?: string;
+  categories?: string;
+}
+
+function SingleWord({ formData, handleChange }: { formData: FormData; handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void }) {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -95,7 +102,7 @@ function SingleWord({ formData, handleChange }) {
   );
 }
 
-function MultipleWords({ bulkText, setBulkText }) {
+function MultipleWords({ bulkText, setBulkText }: { bulkText: string; setBulkText: (text: string) => void }) {
   return (
     <div className="space-y-4">
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4">
@@ -173,7 +180,7 @@ export default function AddModal() {
     });
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
       ...prev,
