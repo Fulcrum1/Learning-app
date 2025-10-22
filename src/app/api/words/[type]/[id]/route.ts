@@ -10,19 +10,11 @@ type Word = {
   lists?: Array<{ id: string; name: string }>;
 };
 
-type RouteParams = {
-  params: {
-    type: string;
-    id: string;
-  };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
-
 export async function GET(
   request: Request,
-  { params }: RouteParams
+  { params }: { params: Promise<{ type: string; id: string }> }
 ): Promise<NextResponse> {
-  const { type, id } = params;
+  const { type, id } = await params;
 
   if (!id) {
     return NextResponse.json({ error: "L'ID est requis" }, { status: 400 });
