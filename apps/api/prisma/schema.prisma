@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String         @id @default(cuid())
+  name      String
+  email     String         @unique
+  password  String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  lists     Lists[]
+  progress  WordProgress[]
+}
+
+model Words {
+  id         String         @id @default(cuid())
+  name       String
+  category   String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  lists      Lists[]        @relation("WordsToLists")
+  categories Categories[]   @relation("WordsToCategories")
+  progress   WordProgress[]
+}
+
+model Lists {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  words     Words[]  @relation("WordsToLists")
+}
+
+model Categories {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  words     Words[]  @relation("WordsToCategories")
+}
+
+model WordProgress {
+  id         String    @id @default(cuid())
+  score      Int       @default(0)
+  lastReview DateTime?
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+  word       Words     @relation(fields: [wordId], references: [id])
+  wordId     String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([userId, wordId])
+}
