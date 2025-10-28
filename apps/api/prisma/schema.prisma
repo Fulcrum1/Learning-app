@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // Using default output directory
 }
 
 datasource db {
@@ -9,55 +8,86 @@ datasource db {
 }
 
 model User {
-  id        String         @id @default(cuid())
-  name      String
-  email     String         @unique
-  password  String
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  lists     Lists[]
-  progress  WordProgress[]
+  id                 String               @id @default(cuid())
+  name               String
+  email              String               @unique
+  password           String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  lists              Lists[]
+  vocabularyProgress VocabularyProgress[]
+  expressionProgress ExpressionProgress[]
 }
 
-model Words {
-  id         String         @id @default(cuid())
-  name       String
-  category   String?
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-  lists      Lists[]        @relation("WordsToLists")
-  categories Categories[]   @relation("WordsToCategories")
-  progress   WordProgress[]
+model Vocabulary {
+  id            String               @id @default(cuid())
+  name          String
+  translation   String
+  pronunciation String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  lists         Lists[]              @relation("VocabularyToLists")
+  categories    Categories[]         @relation("VocabularyToCategories")
+  progress      VocabularyProgress[]
+}
+
+model Expressions {
+  id            String               @id @default(cuid())
+  name          String
+  translation   String
+  pronunciation String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  lists         Lists[]              @relation("ExpressionsToLists")
+  categories    Categories[]         @relation("ExpressionsToCategories")
+  progress      ExpressionProgress[]
 }
 
 model Lists {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  words     Words[]  @relation("WordsToLists")
+  id          String        @id @default(cuid())
+  name        String
+  description String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String
+  vocabulary  Vocabulary[]  @relation("VocabularyToLists")
+  expressions Expressions[] @relation("ExpressionsToLists")
 }
 
 model Categories {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  words     Words[]  @relation("WordsToCategories")
+  id          String        @id @default(cuid())
+  name        String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  vocabulary  Vocabulary[]  @relation("VocabularyToCategories")
+  expressions Expressions[] @relation("ExpressionsToCategories")
 }
 
-model WordProgress {
-  id         String    @id @default(cuid())
-  score      Int       @default(0)
-  lastReview DateTime?
-  user       User      @relation(fields: [userId], references: [id])
-  userId     String
-  word       Words     @relation(fields: [wordId], references: [id])
-  wordId     String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+model VocabularyProgress {
+  id           String     @id @default(cuid())
+  score        Int        @default(0)
+  lastReview   DateTime?
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id])
+  vocabularyId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
-  @@unique([userId, wordId])
+  @@unique([userId, vocabularyId])
+}
+
+model ExpressionProgress {
+  id           String      @id @default(cuid())
+  score        Int         @default(0)
+  lastReview   DateTime?
+  user         User        @relation(fields: [userId], references: [id])
+  userId       String
+  expression   Expressions @relation(fields: [expressionId], references: [id])
+  expressionId String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@unique([userId, expressionId])
 }

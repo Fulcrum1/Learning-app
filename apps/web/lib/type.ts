@@ -25,3 +25,10 @@ export const loginFormSchema = z.object({
     .string()
     .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
 });
+
+export interface Vocabulary {
+  id: number;
+  word: string;
+  translation: string;
+  pronunciation?: string;
+}

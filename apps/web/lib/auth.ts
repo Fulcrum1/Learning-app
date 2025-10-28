@@ -1,6 +1,7 @@
 "use server";
 
 import { BACKEND_URL } from "./constants";
+import { createSession } from "./session";
 import { FormState, registerFormSchema, loginFormSchema } from "./type";
 import { redirect } from "next/navigation";
 
@@ -56,7 +57,7 @@ export const login = async (
       error: validatedData.error.flatten().fieldErrors,
     };
   }
-  
+
   // const response = await fetch(`${BACKEND_URL}/auth/login`, {
   const response = await fetch(`http://127.0.0.1:8000/auth/login`, {
     method: "POST",
@@ -67,14 +68,23 @@ export const login = async (
   });
 
   if (response.ok) {
+    const result = await response.json();
+    console.log({result});
+    await createSession({
+      user: {
+        id: result.id,
+        email: result.email,
+        name: result.name,
+      },
+    });
     redirect("/");
   } else {
     return {
       message:
         response.status === 409
           ? "Invalid email or password"
-          // : "Something went wrong",
-          : response.statusText,
+          : // : "Something went wrong",
+            response.statusText,
     };
   }
 };
