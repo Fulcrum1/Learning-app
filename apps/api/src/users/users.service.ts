@@ -8,9 +8,9 @@ import { hash } from 'argon2';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     const {password, ...user} = createUserDto;
-    const hashedPassword = hash(password);
+    const hashedPassword = await hash(password);
     
     return this.prisma.user.create({
       data: {
@@ -27,4 +27,9 @@ export class UsersService {
       },
     });
   }
+
+  // async confirmPassword(password: string, confirmPassword: string) {
+  //   if (password !== confirmPassword) return false;
+  //   return true;
+  // }
 }
