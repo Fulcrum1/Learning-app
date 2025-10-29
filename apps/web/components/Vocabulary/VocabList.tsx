@@ -1,21 +1,22 @@
 "use client";
-import { UserPlus } from "lucide-react";
-import AddModal from "@/components/Words/AddModal";
 import { useState, useEffect } from "react";
-import { Word } from "@/types/word";
+import { BACKEND_URL } from "@/lib/constants";
+import { Vocabulary } from "@/lib/type";
 
-export default function WordsLists({ page }: { page: string }) {
+export default function VocabList({ page }: { page: string }) {
   const [open, setOpen] = useState(false);
-  const [words, setWords] = useState<Word[]>([]);
+  const [vocabulary, setVocabulary] = useState<Vocabulary[]>([]);
 
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const response = await fetch("/api/words");
+        const response = await fetch(`${BACKEND_URL}/vocabulary`, {
+          method: "GET",
+        });
         const data = await response.json();
-        console.log(data);
+        console.log("data", data);
 
-        setWords(data.words);
+        setVocabulary(data);
       } catch (error) {
         console.error("Error fetching words:", error);
       }
@@ -49,35 +50,35 @@ export default function WordsLists({ page }: { page: string }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {words && words.length > 0 ? (
-                words.map((word) => (
+              {vocabulary && vocabulary.length > 0 ? (
+                vocabulary.map((vocabulary) => (
                   <tr
-                    key={word.id}
+                    key={vocabulary.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold">
-                          {word.word.charAt(0)}
+                          {vocabulary.name.charAt(0)}
                         </div>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {word.word}
+                          {vocabulary.name}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {word.translation}
+                        {vocabulary.translation}
                       </p>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {word.pronunciation}
+                        {vocabulary.pronunciation}
                       </p>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {word.categories?.map((category) => category.name).join(", ")}
+                        {vocabulary.categories?.map((category) => category.name).join(", ")}
                       </p>
                     </td>
                     {page === "library" && (

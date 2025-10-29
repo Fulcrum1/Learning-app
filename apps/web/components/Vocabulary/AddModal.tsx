@@ -254,13 +254,12 @@ export default function AddModal() {
           },
           body: JSON.stringify(parsedVocabularies),
         });
-        // console.log(parsedVocabularies);
         
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || `Erreur HTTP: ${response.status}`);
         }
-        const data = await response.json();
+        const data = await response;
         console.log("Vocabulaires ajoutés avec succès:", data);
 
         setBulkText("");
@@ -270,11 +269,11 @@ export default function AddModal() {
       }
     } catch (error) {
       console.error("Erreur lors de l'ajout des vocabulaires:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Une erreur est survenue lors de l'ajout des vocabulaires"
-      );
+      // alert(
+      //   error instanceof Error
+      //     ? error.message
+      //     : "Une erreur est survenue lors de l'ajout des vocabulaires"
+      // );
     } finally {
       setIsLoading(false);
     }

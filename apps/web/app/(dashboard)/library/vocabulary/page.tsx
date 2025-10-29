@@ -2,7 +2,7 @@
 import { UserPlus } from "lucide-react";
 import AddModal from "@/components/Vocabulary/AddModal";
 import { useState, useEffect } from "react";
-import WordsLists from "@/components/Vocabulary/wordsLists";
+import VocabList from "@/components/Vocabulary/VocabList";
 import { Vocabulary } from "@/lib/type";
 import { BACKEND_URL } from "@/lib/constants";
 
@@ -46,7 +46,7 @@ export default function Users() {
       {/* Content */}
       <div className="p-8">
         {/* Words Table */}
-        <WordsLists page={"library"} />
+        <VocabList page={"library"} />
       </div>
     </>
   );

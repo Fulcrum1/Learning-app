@@ -26,9 +26,16 @@ export const loginFormSchema = z.object({
     .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
 });
 
+export interface Category {
+  id: string;
+  name: string;
+  _count?: { vocabulary: number };
+}
+
 export interface Vocabulary {
-  id: number;
-  word: string;
+  id: string;
+  name: string;
   translation: string;
   pronunciation?: string;
+  categories?: Category[];
 }

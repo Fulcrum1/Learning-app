@@ -7,11 +7,6 @@ import { UpdateVocabularyDto } from './dto/update-vocabulary.dto';
 export class VocabularyController {
   constructor(private readonly vocabularyService: VocabularyService) {}
 
-  // @Post()
-  // create(@Body() createVocabularyDto: CreateVocabularyDto[]) {
-  //   return this.vocabularyService.create(createVocabularyDto);
-  // }
-
   @Post('single')
   createSingle(@Body() createVocabularyDto: CreateVocabularyDto) {
     return this.vocabularyService.createSingle(createVocabularyDto);
@@ -19,13 +14,7 @@ export class VocabularyController {
 
   @Post('multiple')
   createMultiple(@Body() createVocabularyDto: CreateVocabularyDto[]) {
-    createVocabularyDto.forEach((vocabulary) => {
-      console.log("voc.name=" + vocabulary.name);
-      console.log("voc.translation=" + vocabulary.translation);
-      console.log("voc.pronunciation=" + vocabulary.pronunciation);
-      console.log("voc.categories=" + vocabulary.categoryNames);
-    });
-    // return this.vocabularyService.createMultiple(createVocabularyDto);
+    return this.vocabularyService.createMultiple(createVocabularyDto);
   }
 
   @Get()
