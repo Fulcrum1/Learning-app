@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import { Plus, Shuffle, List, BookOpen } from "lucide-react";
 import { Category, Vocabulary } from "@/lib/type";
 import { BACKEND_URL } from "@/lib/constants";
+
 import ManualModal from "./AddModal/manual";
 import CategoryModal from "./AddModal/category";
 import RandomModal from "./AddModal/random";
@@ -67,11 +69,12 @@ export default function AddModal() {
           selectedVocabulary.includes(vocabulary)
         );
       case "category":
+        console.log(selectedCategories);
         return vocabulary.filter(
           (vocabulary) =>
             vocabulary.categories &&
             vocabulary.categories.some(
-              (cat) => categories.find((category) => category === cat)?.name
+              (cat) => selectedCategories.find((category) => category.id === cat.id)?.id
             )
         );
       case "random":
@@ -82,42 +85,35 @@ export default function AddModal() {
     }
   };
 
-  const handleSubmit = async () => {
-    console.log(formData);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const selectedWordsData = getSelectedWordsFromMethod();
+      const vocabularyIds = selectedWordsData.map(
+        (vocabulary) => vocabulary.id
+      );
+
+      const dataToSubmit = {
+        name: formData.name,
+        description: formData.description || "",
+        vocabulary: vocabularyIds,
+      };
+      
+      const response = await fetch(`${BACKEND_URL}/list/${activeTab}`, {
+        method: "POST",
+        body: JSON.stringify(dataToSubmit),
+      });
+      
+      const result = await response.json();
+      console.log("Liste créée avec succès:", result);
+      
+      // Fermer la modale et réinitialiser le formulaire après un succès
+      setOpen(false);
+      setFormData({ name: "", description: "" });
+    } catch (error) {
+      console.error("Erreur lors de l'envoi:", error);
+    }
   };
-  // const handleSubmit = async () => {
-  //   try {
-  //     const selectedWordsData = getSelectedWordsFromMethod();
-  //     const vocabularyIds = selectedWordsData.map(
-  //       (vocabulary) => vocabulary.id
-  //     );
-
-  //     const dataToSubmit = {
-  //       name: formData.name,
-  //       description: formData.description || "",
-  //       vocabulary: vocabularyIds,
-  //       type: activeTab,
-  //     };
-
-  //     const response = await fetch(`${BACKEND_URL}/lists/${activeTab}`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(dataToSubmit),
-  //     });
-  //     if (!response.ok) {
-  //       const errorData = await response.json();
-  //       throw new Error(
-  //         errorData.error || "Erreur lors de la création de la liste"
-  //       );
-  //     }
-  //     const result = await response.json();
-  //     console.log("Liste créée avec succès:", result);
-  //   } catch (error) {
-  //     console.error("Erreur lors de l'envoi:", error);
-  //   }
-  // };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -134,7 +130,7 @@ export default function AddModal() {
           <DialogTitle>Créer une nouvelle liste</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => handleSubmit(e)}>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label htmlFor="name">Nom de la liste</Label>

@@ -10,7 +10,7 @@ export type Session = {
     email: string;
     name: string;
   };
-  //   accessToken: string;
+    accessToken: string;
   //   refreshToken: string;
 };
 
@@ -50,4 +50,8 @@ export async function getSession() {
     console.log(error);
     redirect("/login");
   }
+}
+
+export async function destroySession() {
+  (await cookies()).delete("session");
 }

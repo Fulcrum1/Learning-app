@@ -1,7 +1,7 @@
 "use server";
 
 import { BACKEND_URL } from "./constants";
-import { createSession } from "./session";
+import { createSession, getSession } from "./session";
 import { FormState, registerFormSchema, loginFormSchema } from "./type";
 import { redirect } from "next/navigation";
 
@@ -69,14 +69,16 @@ export const login = async (
 
   if (response.ok) {
     const result = await response.json();
-    console.log({result});
+
     await createSession({
       user: {
         id: result.id,
         email: result.email,
         name: result.name,
       },
+      accessToken: result.accessToken,
     });
+    
     redirect("/");
   } else {
     return {

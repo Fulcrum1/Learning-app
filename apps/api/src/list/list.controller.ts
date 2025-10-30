@@ -1,4 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import type { Request } from 'express';
+import type { User } from '@prisma/client';
 import { ListService } from './list.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
@@ -13,18 +16,31 @@ export class ListController {
   // }
 
   @Post('manual')
-  createManual(@Body() createListDto: CreateListDto) {
-    return this.listService.createManual(createListDto);
+  @UseGuards(AuthGuard('jwt'))
+  createManual(@Req() req: Request & { user: User }, @Body() createListDto: CreateListDto) {
+    console.log({user: req.user})
+    return this.listService.createManual({
+      ...createListDto,
+      userId: req.user.id
+    });
   }
 
   @Post('category')
-  createCategory(@Body() createListDto: CreateListDto) {
-    return this.listService.createCategory(createListDto);
+  @UseGuards(AuthGuard('jwt'))
+  createCategory(@Req() req: Request & { user: User }, @Body() createListDto: CreateListDto) {
+    return this.listService.createCategory({
+      ...createListDto,
+      userId: req.user.id
+    });
   }
 
   @Post('random')
-  createRandom(@Body() createListDto: CreateListDto) {
-    return this.listService.createRandom(createListDto);
+  @UseGuards(AuthGuard('jwt'))
+  createRandom(@Req() req: Request & { user: User }, @Body() createListDto: CreateListDto) {
+    return this.listService.createRandom({
+      ...createListDto,
+      userId: req.user.id
+    });
   }
 
   @Get()

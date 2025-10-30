@@ -20,11 +20,10 @@ export default function Lists() {
   useEffect(() => {
     const fetchLists = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/lists`, {
+        const response = await fetch(`${BACKEND_URL}/list`, {
           method: "GET",
         });
         const data = await response.json();
-        console.log(data);
 
         setLists(data.lists);
       } catch (error) {

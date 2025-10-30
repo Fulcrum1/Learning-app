@@ -7,14 +7,22 @@ import {
   LogOut,
   BookOpen,
   FolderOpen,
+  Link,
 } from "lucide-react";
 import { SidebarTrigger } from "../ui/sidebar";
 import NavButton from "./NavButton";
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  user?: string;
+}
+
+export function AppSidebar({ user }: AppSidebarProps) {
   const [activeItem, setActiveItem] = useState("dashboard");
 
-  const initialUser = "GT";
+  const userInitials = user
+    ?.split(" ")
+    .map((name) => name[0])
+    .join("");
 
   const menuCategories = [
     {
@@ -113,23 +121,25 @@ export function AppSidebar() {
         >
           <div className="relative">
             <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/30 transition-transform duration-300 group-hover:scale-110">
-              <span className="text-base font-semibold">{initialUser}</span>
+              <span className="text-base font-semibold">{userInitials}</span>
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-base font-medium truncate">{initialUser}</p>
+            <p className="text-base font-medium truncate">{user}</p>
           </div>
         </div>
-        <button
-          className={`mt-4 w-full flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-red-600/10 hover:text-red-400 transition-all duration-300 group relative overflow-hidden`}
-          title="Déconnexion"
-        >
-          <div className="absolute inset-0 bg-red-600/20 opacity-0 group-hover:opacity-100 transition-all duration-300" />
-          <LogOut className="w-6 h-6 flex-shrink-0 relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
-          <span className="font-medium text-base relative z-10">
-            Déconnexion
-          </span>
-        </button>
+        <a href="/api/auth/signout">
+          <button
+            className={`mt-4 w-full flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-red-600/10 hover:text-red-400 transition-all duration-300 group relative overflow-hidden cursor-pointer`}
+            title="Déconnexion"
+          >
+            <LogOut className="w-6 h-6 flex-shrink-0 relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
+            <div className="absolute inset-0 bg-red-600/20 opacity-0 group-hover:opacity-100 transition-all duration-300" />
+            <span className="font-medium text-base relative z-10">
+              Déconnexion
+            </span>
+          </button>
+        </a>
       </div>
     </div>
   );
