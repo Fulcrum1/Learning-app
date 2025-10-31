@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import type { Request } from 'express';
 import type { User } from '@prisma/client';
 import { ListService } from './list.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 
 @Controller('list')
 export class ListController {
@@ -16,7 +16,7 @@ export class ListController {
   // }
 
   @Post('manual')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   createManual(@Req() req: Request & { user: User }, @Body() createListDto: CreateListDto) {
     console.log({user: req.user})
     return this.listService.createManual({
@@ -26,7 +26,6 @@ export class ListController {
   }
 
   @Post('category')
-  @UseGuards(AuthGuard('jwt'))
   createCategory(@Req() req: Request & { user: User }, @Body() createListDto: CreateListDto) {
     return this.listService.createCategory({
       ...createListDto,
@@ -35,7 +34,6 @@ export class ListController {
   }
 
   @Post('random')
-  @UseGuards(AuthGuard('jwt'))
   createRandom(@Req() req: Request & { user: User }, @Body() createListDto: CreateListDto) {
     return this.listService.createRandom({
       ...createListDto,

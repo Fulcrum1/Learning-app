@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 import { verify } from 'argon2';
@@ -20,18 +20,6 @@ export class AuthService {
     return this.usersService.create(createUserDto);
   }
 
-  // async login(email: string, password: string) {
-  //     const user = await this.usersService.findByEmail(email);
-
-  //     if (!user) throw new Error('User not found');
-
-  //     const isPasswordMatch = await verify(user.password, password);
-
-  //     if (!isPasswordMatch) throw new Error('Invalid password');
-
-  //     return {id: user.id, name: user.name, email: user.email};
-  // }
-
   async login(userId: string, name: string) {
     const { accessToken } = await this.generateToken(userId);
     return { id: userId, name: name, accessToken };
@@ -39,8 +27,30 @@ export class AuthService {
 
   async generateToken(userId: string) {
     const payload: AuthJwtPayload = { sub: userId };
-    const [accessToken] = await Promise.all([this.jwtService.signAsync(payload)]);
+    const [accessToken] = await Promise.all([
+      this.jwtService.signAsync(payload),
+    ]);
 
     return { accessToken };
+  }
+
+  async validateLocalUser(email: string, password: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new UnauthorizedException('User not found!');
+    const isPasswordMatched = verify(user.password, password);
+    if (!isPasswordMatched)
+      throw new UnauthorizedException('Invalid Credentials!');
+
+    return { id: user.id, name: user.name };
+  }
+
+  async validateJwtUser(userId: string) {
+    console.log({ userId });
+    const user = await this.usersService.findOne(userId);
+
+    if (!user) throw new Error('User not found');
+
+    const currentUser = { id: user.id };
+    return currentUser;
   }
 }

@@ -28,8 +28,11 @@ export class UsersService {
     });
   }
 
-  // async confirmPassword(password: string, confirmPassword: string) {
-  //   if (password !== confirmPassword) return false;
-  //   return true;
-  // }
+  async findOne(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
 }

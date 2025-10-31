@@ -20,6 +20,7 @@ import { BACKEND_URL } from "@/lib/constants";
 import ManualModal from "./AddModal/manual";
 import CategoryModal from "./AddModal/category";
 import RandomModal from "./AddModal/random";
+import { getSession } from "@/lib/session";
 
 export default function AddModal() {
   const [open, setOpen] = useState(false);
@@ -74,7 +75,9 @@ export default function AddModal() {
           (vocabulary) =>
             vocabulary.categories &&
             vocabulary.categories.some(
-              (cat) => selectedCategories.find((category) => category.id === cat.id)?.id
+              (cat) =>
+                selectedCategories.find((category) => category.id === cat.id)
+                  ?.id
             )
         );
       case "random":
@@ -99,14 +102,21 @@ export default function AddModal() {
         vocabulary: vocabularyIds,
       };
       
+      const session = await getSession();
+      console.log(session?.accessToken);
+      
       const response = await fetch(`${BACKEND_URL}/list/${activeTab}`, {
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+
         method: "POST",
         body: JSON.stringify(dataToSubmit),
       });
-      
+
       const result = await response.json();
       console.log("Liste créée avec succès:", result);
-      
+
       // Fermer la modale et réinitialiser le formulaire après un succès
       setOpen(false);
       setFormData({ name: "", description: "" });
