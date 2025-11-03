@@ -35,8 +35,8 @@ export default function AddModal() {
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [randomCount, setRandomCount] = useState(10);
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
+    name: String(""),
+    description: String(""),
   });
 
   useEffect(() => {
@@ -96,22 +96,21 @@ export default function AddModal() {
         (vocabulary) => vocabulary.id
       );
 
-      const dataToSubmit = {
-        name: formData.name,
-        description: formData.description || "",
-        vocabulary: vocabularyIds,
-      };
-      
       const session = await getSession();
-      console.log(session?.accessToken);
       
       const response = await fetch(`${BACKEND_URL}/list/${activeTab}`, {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${session?.accessToken}`,
         },
-
         method: "POST",
-        body: JSON.stringify(dataToSubmit),
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          userId: session?.user.id,
+          vocabulary: vocabularyIds,
+          expressions: [],
+        }),
       });
 
       const result = await response.json();

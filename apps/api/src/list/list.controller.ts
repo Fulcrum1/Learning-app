@@ -1,44 +1,77 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import type { User } from '@prisma/client';
 import { ListService } from './list.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
+import { UnauthorizedException } from '@nestjs/common';
 
 @Controller('list')
 export class ListController {
   constructor(private readonly listService: ListService) {}
 
-  // @Post()
-  // create(@Body() createListDto: CreateListDto) {
-  //   return this.listService.create(createListDto);
-  // }
-
-  @Post('manual')
   @UseGuards(JwtAuthGuard)
-  createManual(@Req() req: Request & { user: User }, @Body() createListDto: CreateListDto) {
-    console.log({user: req.user})
-    return this.listService.createManual({
+  @Post('manual')
+  createManual(
+    @Req() req: Request & { user: User },
+    @Body() createListDto: CreateListDto,
+  ) {
+    console.log({ req: req.body });
+    console.log({ DTO: createListDto });
+    console.log({ Utilisateur: req.user });
+
+    if (!createListDto) {
+      throw new UnauthorizedException('DTO invalide');
+    }
+
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException('Utilisateur non authentifié');
+    }
+
+    // Crée un nouvel objet avec userId
+    const fullDto = {
       ...createListDto,
-      userId: req.user.id
-    });
+      userId,
+    };
+
+    console.log({ DTOFinal: fullDto });
+    return this.listService.createManual(fullDto);
   }
 
   @Post('category')
-  createCategory(@Req() req: Request & { user: User }, @Body() createListDto: CreateListDto) {
-    return this.listService.createCategory({
-      ...createListDto,
-      userId: req.user.id
-    });
+  createCategory(
+    @Req() req: Request & { user: User },
+    @Body() createListDto: CreateListDto,
+  ) {
+    if (!createListDto.userId) {
+      const user = req.user;
+      createListDto.userId = user?.id;
+    }
+    return this.listService.createCategory(createListDto);
   }
 
   @Post('random')
-  createRandom(@Req() req: Request & { user: User }, @Body() createListDto: CreateListDto) {
-    return this.listService.createRandom({
-      ...createListDto,
-      userId: req.user.id
-    });
+  createRandom(
+    @Req() req: Request & { user: User },
+    @Body() createListDto: CreateListDto,
+  ) {
+    if (!createListDto.userId) {
+      const user = req.user;
+      createListDto.userId = user?.id;
+    }
+    return this.listService.createRandom(createListDto);
   }
 
   @Get()

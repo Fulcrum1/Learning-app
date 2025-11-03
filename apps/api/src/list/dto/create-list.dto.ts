@@ -1,7 +1,7 @@
 import { IsString, IsArray, IsOptional } from "class-validator";
 
 export class CreateListDto {
-    @IsString()
+    // @IsString()
     readonly name: string;
 
     @IsString()
@@ -9,7 +9,8 @@ export class CreateListDto {
     readonly description?: string;
 
     @IsString()
-    readonly userId: string;
+    @IsOptional()
+    userId?: string;
 
     @IsArray()
     @IsString({ each: true })

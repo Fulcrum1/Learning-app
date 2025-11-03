@@ -13,7 +13,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
     <SidebarProvider>
       <AppSidebar user={session?.user.name}/>
       <main className="flex-1 overflow-auto p-6 w-full">
-        <div className="max-w-full w-full">{children}</div>
+        <div className="max-w-full w-full h-full">{children}</div>
       </main>
     </SidebarProvider>
   );

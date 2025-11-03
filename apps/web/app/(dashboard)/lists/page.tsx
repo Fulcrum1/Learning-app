@@ -2,7 +2,7 @@
 import { UserPlus } from "lucide-react";
 import AddModal from "@/components/Lists/AddModal";
 import { useState, useEffect } from "react";
-import ShowWordsList from "@/components/Global/ShowWordsList";
+import ShowWordsList from "@/components/Global/ShowVocabularyList";
 import { Button } from "@/components/ui/button";
 import { BACKEND_URL } from "@/lib/constants";
 
@@ -24,8 +24,8 @@ export default function Lists() {
           method: "GET",
         });
         const data = await response.json();
-
-        setLists(data.lists);
+        
+        setLists(data);
       } catch (error) {
         console.error("Error fetching lists:", error);
       }
@@ -66,7 +66,7 @@ export default function Lists() {
                       Description
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                      Mots
+                      Vocabulaire
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                       Outils

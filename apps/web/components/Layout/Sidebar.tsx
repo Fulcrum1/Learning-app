@@ -73,32 +73,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
     },
   ];
 
-  const handleTest = async () => {
-    try {
-      const session = await getSession();
-      console.log("Session:", session); // Voir la session complète
-
-      if (!session?.accessToken) {
-        console.error("Aucun token trouvé dans la session");
-        return;
-      }
-
-      console.log("Token:", session.accessToken); // Vérifier le token
-
-      const response = await fetch("http://localhost:8000/auth/protected", {
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      console.log("Status:", response.status);
-      const data = await response.json().catch(() => ({}));
-      console.log("Response:", data);
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  };
   return (
     <div className="h-screen bg-gray-900 text-white flex flex-col transition-all duration-300 ease-in-out border-r border-gray-800/50">
       {/* Header with glow effect */}
@@ -108,7 +82,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </h1>
         <SidebarTrigger />
       </div>
-      <Button onClick={handleTest}>Test</Button>
       {/* Navigation with enhanced visuals */}
       <div className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar">
         {menuCategories.map((category, categoryIndex) => (

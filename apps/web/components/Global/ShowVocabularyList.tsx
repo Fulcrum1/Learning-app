@@ -11,17 +11,18 @@ import {
 } from "@/components/ui/dialog";
 import { Languages, Loader2, BookOpen } from "lucide-react";
 import { useState } from "react";
+import { BACKEND_URL } from "@/lib/constants";
 
-type Word = {
+type Vocabulary  = {
   id: string;
-  word: string;
+  name: string;
   translation: string;
   pronunciation: string;
 };
 
 export default function ShowWords({ type, id }: { type: string; id: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [words, setWords] = useState<Word[]>([]);
+  const [vocabulary, setVocabulary] = useState<Vocabulary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,12 +30,12 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/words/${type}/${id}`);
+      const response = await fetch(`${BACKEND_URL}/list/${id}`);
       if (!response.ok) {
         throw new Error("Erreur lors du chargement des mots");
       }
       const data = await response.json();
-      setWords(data);
+      setVocabulary(data.vocabulary);
     } catch (err) {
       console.error("Error fetching words:", err);
       setError("Impossible de charger les mots. Veuillez réessayer.");
@@ -45,7 +46,7 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (open && words.length === 0) {
+    if (open && vocabulary.length === 0) {
       fetchWords();
     }
   };
@@ -71,10 +72,10 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
                     Vocabulaire
                   </DialogTitle>
                   <p className="text-white/80 text-sm">
-                    {words.length > 0
-                      ? `${words.length} mot${
-                          words.length > 1 ? "s" : ""
-                        } disponible${words.length > 1 ? "s" : ""}`
+                    {vocabulary.length > 0
+                      ? `${vocabulary.length} mot${
+                          vocabulary.length > 1 ? "s" : ""
+                        } disponible${vocabulary.length > 1 ? "s" : ""}`
                       : "Chargement..."}
                   </p>
                 </div>
@@ -115,11 +116,11 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
                   Réessayer
                 </Button>
               </div>
-            ) : words.length > 0 ? (
+            ) : vocabulary.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {words.map((word) => (
+                {vocabulary.map((element) => (
                   <div
-                    key={word.id}
+                    key={element.id}
                     className="group relative bg-white p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-400 hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1"
                   >
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -128,16 +129,16 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
 
                     <div className="mb-3">
                       <div className="text-xl font-bold text-gray-900 mb-1">
-                        {word.translation}
+                        {element.translation}
                       </div>
                       <div className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md inline-block">
-                        {word.pronunciation}
+                        {element.pronunciation}
                       </div>
                     </div>
 
                     <div className="pt-3 border-t border-gray-100">
                       <div className="text-sm text-gray-600 font-medium">
-                        {word.word}
+                        {element.name}
                       </div>
                     </div>
                   </div>
