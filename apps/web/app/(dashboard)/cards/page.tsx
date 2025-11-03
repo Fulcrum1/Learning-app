@@ -43,19 +43,25 @@ export default function Cards() {
   return (
     <div className="h-full flex items-center justify-center">
       <div className="w-1/2 h-full flex items-center justify-center">
-        <Card ref={cardRef} className="w-full h-full flip-card">
+        <Card
+          ref={cardRef}
+          className="w-full h-full flip-card"
+        >
           <CardHeader>
             <div className="flex items-center justify-between gap-2">
               <p>Card Title</p>
-              <Settings
+              <Settings 
                 onClick={(e) => {
                   e.stopPropagation();
                   handleTurn();
-                }}
+                }} 
               />
             </div>
           </CardHeader>
-          <CardContent className="flip-card-inner" onClick={handleTurn}>
+          <CardContent 
+            className="flip-card-inner"
+            onClick={handleTurn}
+          >
             <div className="flex m-0 p-0 flip-card-front">Hello there</div>
             <div className="flex m-0 p-0 flip-card-back">Hello there</div>
           </CardContent>
