@@ -10,19 +10,43 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Languages, Loader2, BookOpen } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BACKEND_URL } from "@/lib/constants";
 
-type Vocabulary  = {
+type VocabularyInList = {
+  id: string;
+  listId: string;
+  order: string;
+  review: string;
+  vocabulary: Vocabulary;
+  vocabularyId: string;
+};
+
+type Vocabulary = {
   id: string;
   name: string;
   translation: string;
   pronunciation: string;
 };
 
+type VocabularyList = {
+  id: string;
+  name: string;
+  description: string;
+  VocabularyList: VocabularyInList[];
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  _count: {
+    VocabularyList: number;
+  };
+};
+
 export default function ShowWords({ type, id }: { type: string; id: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [vocabulary, setVocabulary] = useState<Vocabulary[]>([]);
+  const [vocabulary, setVocabulary] = useState<VocabularyList | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +59,7 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
         throw new Error("Erreur lors du chargement des mots");
       }
       const data = await response.json();
-      setVocabulary(data.vocabulary);
+      setVocabulary(data);
     } catch (err) {
       console.error("Error fetching words:", err);
       setError("Impossible de charger les mots. Veuillez réessayer.");
@@ -44,11 +68,15 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
     }
   };
 
+  useEffect(() => {
+    console.log(vocabulary);
+  }, [vocabulary]);
+
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (open && vocabulary.length === 0) {
-      fetchWords();
-    }
+    // if (open && vocabulary.length === 0) {
+    fetchWords();
+    // }
   };
 
   return (
@@ -72,10 +100,10 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
                     Vocabulaire
                   </DialogTitle>
                   <p className="text-white/80 text-sm">
-                    {vocabulary.length > 0
-                      ? `${vocabulary.length} mot${
-                          vocabulary.length > 1 ? "s" : ""
-                        } disponible${vocabulary.length > 1 ? "s" : ""}`
+                    {vocabulary
+                      ? `${vocabulary.VocabularyList.length} mot${
+                          vocabulary.VocabularyList.length > 1 ? "s" : ""
+                        } disponible${vocabulary.VocabularyList.length > 1 ? "s" : ""}`
                       : "Chargement..."}
                   </p>
                 </div>
@@ -116,11 +144,11 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
                   Réessayer
                 </Button>
               </div>
-            ) : vocabulary.length > 0 ? (
+            ) : vocabulary && vocabulary.VocabularyList.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {vocabulary.map((element) => (
+                {vocabulary.VocabularyList.map((element) => (
                   <div
-                    key={element.id}
+                    key={element.vocabularyId}
                     className="group relative bg-white p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-400 hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1"
                   >
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -129,16 +157,15 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
 
                     <div className="mb-3">
                       <div className="text-xl font-bold text-gray-900 mb-1">
-                        {element.translation}
+                        {element.vocabulary.name}
                       </div>
                       <div className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md inline-block">
-                        {element.pronunciation}
+                        {element.vocabulary.pronunciation}
                       </div>
                     </div>
-
                     <div className="pt-3 border-t border-gray-100">
                       <div className="text-sm text-gray-600 font-medium">
-                        {element.name}
+                        {element.vocabulary.translation}
                       </div>
                     </div>
                   </div>

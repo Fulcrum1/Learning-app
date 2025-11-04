@@ -8,6 +8,7 @@ import {
   Delete,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import type { User } from '@prisma/client';
@@ -21,57 +22,51 @@ import { UnauthorizedException } from '@nestjs/common';
 export class ListController {
   constructor(private readonly listService: ListService) {}
 
+  private async createListWithUser(
+    req: Request & { user: User },
+    createListDto: CreateListDto,
+  ) {
+    if (!createListDto) {
+      throw new UnauthorizedException('DTO invalide');
+    }
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException('Utilisateur non authentifié');
+    }
+
+    const fullDto = {
+      ...createListDto,
+      userId,
+    };
+    
+    return this.listService.create(fullDto);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('manual')
   createManual(
     @Req() req: Request & { user: User },
     @Body() createListDto: CreateListDto,
   ) {
-    console.log({ req: req.body });
-    console.log({ DTO: createListDto });
-    console.log({ Utilisateur: req.user });
-
-    if (!createListDto) {
-      throw new UnauthorizedException('DTO invalide');
-    }
-
-    const userId = req.user?.id;
-    if (!userId) {
-      throw new UnauthorizedException('Utilisateur non authentifié');
-    }
-
-    // Crée un nouvel objet avec userId
-    const fullDto = {
-      ...createListDto,
-      userId,
-    };
-
-    console.log({ DTOFinal: fullDto });
-    return this.listService.createManual(fullDto);
+    return this.createListWithUser(req, createListDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('category')
   createCategory(
     @Req() req: Request & { user: User },
     @Body() createListDto: CreateListDto,
   ) {
-    if (!createListDto.userId) {
-      const user = req.user;
-      createListDto.userId = user?.id;
-    }
-    return this.listService.createCategory(createListDto);
+    return this.createListWithUser(req, createListDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('random')
   createRandom(
     @Req() req: Request & { user: User },
     @Body() createListDto: CreateListDto,
   ) {
-    if (!createListDto.userId) {
-      const user = req.user;
-      createListDto.userId = user?.id;
-    }
-    return this.listService.createRandom(createListDto);
+    return this.createListWithUser(req, createListDto);
   }
 
   @Get()
@@ -84,12 +79,17 @@ export class ListController {
     return this.listService.findVocabularyCategory();
   }
 
+  @Get('vocabulary-card/:id')
+  findAllVocabularyCard(@Param('id') id: string, @Query('reset') reset: boolean | undefined) {
+    return this.listService.findVocabularyCard(id, reset);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {
       return await this.listService.findOne(id);
     } catch (error) {
-      throw error; // La gestion des erreurs est déjà faite dans le service
+      throw error;
     }
   }
 
@@ -98,7 +98,7 @@ export class ListController {
     try {
       return await this.listService.update(id, updateListDto);
     } catch (error) {
-      throw error; // La gestion des erreurs est déjà faite dans le service
+      throw error;
     }
   }
 
@@ -107,7 +107,7 @@ export class ListController {
     try {
       return await this.listService.remove(id);
     } catch (error) {
-      throw error; // La gestion des erreurs est déjà faite dans le service
+      throw error;
     }
   }
 }

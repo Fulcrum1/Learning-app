@@ -16,52 +16,39 @@ model User {
   updatedAt          DateTime             @updatedAt
   lists              Lists[]
   vocabularyProgress VocabularyProgress[]
-  expressionProgress ExpressionProgress[]
 }
 
 model Vocabulary {
-  id            String               @id @default(cuid())
-  name          String
-  translation   String
-  pronunciation String?
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
-  lists         Lists[]              @relation("VocabularyToLists")
-  categories    Categories[]         @relation("VocabularyToCategories")
-  progress      VocabularyProgress[]
-}
-
-model Expressions {
-  id            String               @id @default(cuid())
-  name          String
-  translation   String
-  pronunciation String?
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
-  lists         Lists[]              @relation("ExpressionsToLists")
-  categories    Categories[]         @relation("ExpressionsToCategories")
-  progress      ExpressionProgress[]
+  id                     String                   @id @default(cuid())
+  name                   String
+  translation            String
+  pronunciation          String?
+  type                   Type                     @default(WORD)
+  provenance             String?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  VocabularyList         VocabularyList[]
+  VocabularyToCategories VocabularyToCategories[]
+  VocabularyProgress     VocabularyProgress[]
 }
 
 model Lists {
-  id          String        @id @default(cuid())
-  name        String
-  description String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  user        User          @relation(fields: [userId], references: [id])
-  userId      String
-  vocabulary  Vocabulary[]  @relation("VocabularyToLists")
-  expressions Expressions[] @relation("ExpressionsToLists")
+  id             String           @id @default(cuid())
+  name           String
+  description    String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  user           User             @relation(fields: [userId], references: [id])
+  userId         String
+  VocabularyList VocabularyList[]
 }
 
 model Categories {
-  id          String        @id @default(cuid())
-  name        String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  vocabulary  Vocabulary[]  @relation("VocabularyToCategories")
-  expressions Expressions[] @relation("ExpressionsToCategories")
+  id                     String                   @id @default(cuid())
+  name                   String
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  VocabularyToCategories VocabularyToCategories[]
 }
 
 model VocabularyProgress {
@@ -78,16 +65,32 @@ model VocabularyProgress {
   @@unique([userId, vocabularyId])
 }
 
-model ExpressionProgress {
-  id           String      @id @default(cuid())
-  score        Int         @default(0)
-  lastReview   DateTime?
-  user         User        @relation(fields: [userId], references: [id])
-  userId       String
-  expression   Expressions @relation(fields: [expressionId], references: [id])
-  expressionId String
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+model VocabularyList {
+  id           String     @id @default(cuid())
+  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id])
+  vocabularyId String
+  list         Lists      @relation(fields: [listId], references: [id])
+  listId       String
+  order        Int
+  review       Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
-  @@unique([userId, expressionId])
+  @@unique([listId, vocabularyId])
+}
+
+model VocabularyToCategories {
+  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id])
+  vocabularyId String
+  category     Categories @relation(fields: [categoryId], references: [id])
+  categoryId   String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([vocabularyId, categoryId])
+}
+
+enum Type {
+  WORD
+  EXPRESSION
 }

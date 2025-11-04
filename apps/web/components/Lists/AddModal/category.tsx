@@ -31,7 +31,7 @@ export default function CategoryModal({
           {selectedCategories.length} catégorie(s) sélectionnée(s) •
           {selectedCategories.reduce((total, cat) => {
             const category = categories.find((cat) => cat.id === cat.id);
-            return total + (category?._count?.vocabulary || 0);
+            return total + (category?._count?.VocabularyToCategories || 0);
           }, 0)}
           mot(s)
         </div>
@@ -39,7 +39,7 @@ export default function CategoryModal({
       <div className="max-h-[400px] overflow-y-auto pr-2">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pb-4">
           {categories.map((cat) => {
-            const count = cat?._count?.vocabulary;
+            const count = cat?._count?.VocabularyToCategories;
             return (
               <div
                 key={cat.id}

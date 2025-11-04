@@ -16,9 +16,4 @@ export class CreateListDto {
     @IsString({ each: true })
     @IsOptional()
     readonly vocabulary?: string[];
-
-    @IsArray()
-    @IsString({ each: true })
-    @IsOptional()
-    readonly expressions?: string[];
 }

@@ -33,7 +33,9 @@ export class VocabularyService {
       }
 
       // Gérer les catégories pour chaque vocabulaire
-      const categories = await this.handleCategories(vocabularyData.categoryNames);
+      const categories = await this.handleCategories(
+        vocabularyData.categoryNames,
+      );
 
       try {
         const newVocabulary = await this.prisma.vocabulary.create({
@@ -41,15 +43,16 @@ export class VocabularyService {
             name: vocabularyData.name,
             translation: vocabularyData.translation,
             pronunciation: vocabularyData.pronunciation || null,
-            categories: {
-              connect: categories,
-            },
-          },
-          include: {
-            categories: true,
           },
         });
-        // results.push(newVocabulary);
+
+        const newVocabularyCategories =
+          await this.prisma.vocabularyToCategories.createMany({
+            data: categories.map((category) => ({
+              vocabularyId: newVocabulary.id,
+              categoryId: category.id,
+            })),
+          });
       } catch (error) {
         console.error(
           "Erreur lors de l'ajout du vocabulaire :",

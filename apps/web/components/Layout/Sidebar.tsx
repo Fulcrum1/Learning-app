@@ -54,12 +54,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
               icon: BookOpen,
               href: "/library/vocabulary",
             },
-            {
-              id: "expressions",
-              label: "Expressions",
-              icon: BookOpen,
-              href: "/library/expression",
-            },
           ],
         },
         {

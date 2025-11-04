@@ -70,16 +70,13 @@ export default function AddModal() {
           selectedVocabulary.includes(vocabulary)
         );
       case "category":
-        console.log(selectedCategories);
-        return vocabulary.filter(
-          (vocabulary) =>
-            vocabulary.categories &&
-            vocabulary.categories.some(
-              (cat) =>
-                selectedCategories.find((category) => category.id === cat.id)
-                  ?.id
-            )
-        );
+        const vocabularyIds: { id: string }[] = [];
+        selectedCategories.forEach((category) => {
+          category.vocabulary?.forEach((vocabulary) => {
+            vocabularyIds.push({ id: vocabulary.id });
+          });
+        });
+        return vocabularyIds;
       case "random":
         const shuffled = [...vocabulary].sort(() => Math.random() - 0.5);
         return shuffled.slice(0, Math.min(randomCount, vocabulary.length));
@@ -97,7 +94,7 @@ export default function AddModal() {
       );
 
       const session = await getSession();
-      
+
       const response = await fetch(`${BACKEND_URL}/list/${activeTab}`, {
         headers: {
           "Content-Type": "application/json",
@@ -109,7 +106,6 @@ export default function AddModal() {
           description: formData.description,
           userId: session?.user.id,
           vocabulary: vocabularyIds,
-          expressions: [],
         }),
       });
 

@@ -1,5 +1,5 @@
 "use client";
-import { UserPlus } from "lucide-react";
+import { Link, UserPlus } from "lucide-react";
 import AddModal from "@/components/Lists/AddModal";
 import { useState, useEffect } from "react";
 import ShowWordsList from "@/components/Global/ShowVocabularyList";
@@ -24,7 +24,7 @@ export default function Lists() {
           method: "GET",
         });
         const data = await response.json();
-        
+
         setLists(data);
       } catch (error) {
         console.error("Error fetching lists:", error);
@@ -103,8 +103,12 @@ export default function Lists() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2">
-                            <Button>Cartes</Button>
-                            <Button>Apprendre</Button>
+                            <Button type="button" asChild style={{ color: "white" }}>
+                              <a href={`/cards/${list.id}`}>Cartes</a>
+                            </Button>
+                            <Button type="button" asChild style={{ color: "white" }}>
+                              <a href={`/cards/${list.id}`}>Apprendre</a>
+                            </Button>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

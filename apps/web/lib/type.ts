@@ -29,7 +29,8 @@ export const loginFormSchema = z.object({
 export interface Category {
   id: string;
   name: string;
-  _count?: { vocabulary: number };
+  _count?: { VocabularyToCategories: number };
+  vocabulary?: Vocabulary[];
 }
 
 export interface Vocabulary {
@@ -38,4 +39,10 @@ export interface Vocabulary {
   translation: string;
   pronunciation?: string;
   categories?: Category[];
+}
+
+export interface Card {
+  id: string;
+  front: string;
+  back: string;
 }
