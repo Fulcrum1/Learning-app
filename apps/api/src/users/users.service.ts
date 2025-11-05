@@ -11,13 +11,22 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const {password, ...user} = createUserDto;
     const hashedPassword = await hash(password);
-    
-    return this.prisma.user.create({
+    const userCreated = await this.prisma.user.create({
       data: {
         ...user,
         password: hashedPassword,
       },
     });
+
+    const cardParam = await this.prisma.cardParam.create({
+      data: {
+        userId: userCreated.id,
+        random: false,
+        translationOnVerso: true,
+      },
+    });
+
+    return userCreated;
   }
 
   async findByEmail(email: string) {

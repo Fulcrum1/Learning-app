@@ -2,32 +2,103 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Settings } from "lucide-react";
 import { useState } from "react";
+import { CardParam } from "@/lib/type";
+import { getSession } from "@/lib/session";
+import { BACKEND_URL } from "@/lib/constants";
 
-export default function Options() {
-  const [isRandom, setIsRandom] = useState(false);
-  const [frontSide, setFrontSide] = useState("Français");
-  const [backSide, setBackSide] = useState("Japonais");
+interface OptionsProps {
+  cardParam: CardParam;
+  idList: string;
+  onUpdateParams: (params: {
+    random: boolean;
+    translationOnVerso: boolean;
+  }) => void;
+}
 
-  const handleReset = () => {
-    setIsRandom(false);
-    setFrontSide("Français");
-    setBackSide("Japonais");
+export default function Options({ cardParam, idList, onUpdateParams }: OptionsProps) {
+  const [isRandom, setIsRandom] = useState(cardParam.random);
+  const [isTranslationOnVerso, setIsTranslationOnVerso] = useState(
+    cardParam.translationOnVerso
+  );
+  const [frontSide, setFrontSide] = useState(
+    cardParam.translationOnVerso ? "Français" : "Japonais"
+  );
+  const [backSide, setBackSide] = useState(
+    cardParam.translationOnVerso ? "Japonais" : "Français"
+  );
+
+  const handleReset = async () => {
+    const session = await getSession();
+    await fetch(`${BACKEND_URL}/card/reset-card`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      body: JSON.stringify({
+        listId: idList,
+      }),
+    });
   };
 
-  const toggleSides = () => {
-    const temp = frontSide;
-    setFrontSide(backSide);
-    setBackSide(temp);
+  const toggleSides = async () => {
+  const newIsTranslationOnVerso = !isTranslationOnVerso;
+  
+  // Mettre à jour l'état local immédiatement
+  setIsTranslationOnVerso(newIsTranslationOnVerso);
+  setFrontSide(newIsTranslationOnVerso ? "Français" : "Japonais");
+  setBackSide(newIsTranslationOnVerso ? "Japonais" : "Français");
+
+  // Créer un nouvel objet avec les nouvelles valeurs
+  const newParams = {
+    random: isRandom,
+    translationOnVerso: newIsTranslationOnVerso,
   };
+
+  // Notifier le parent avec les nouvelles valeurs
+  onUpdateParams(newParams);
+  
+  // Appeler handleUpdate avec les nouvelles valeurs directement
+  await handleUpdate(newParams);
+};
+
+const handleRandom = async () => {
+  const newRandom = !isRandom;
+  
+  // Mettre à jour l'état local immédiatement
+  setIsRandom(newRandom);
+
+  // Créer un nouvel objet avec les nouvelles valeurs
+  const newParams = {
+    random: newRandom,
+    translationOnVerso: isTranslationOnVerso,
+  };
+
+  // Notifier le parent avec les nouvelles valeurs
+  onUpdateParams(newParams);
+  
+  // Appeler handleUpdate avec les nouvelles valeurs directement
+  await handleUpdate(newParams);
+};
+
+// Modifier handleUpdate pour accepter les paramètres
+const handleUpdate = async (params: { random: boolean; translationOnVerso: boolean }) => {
+  const session = await getSession();
+  await fetch(`${BACKEND_URL}/card/param-card`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session?.accessToken}`,
+    },
+    body: JSON.stringify(params), // Utiliser les paramètres passés
+  });
+};
 
   return (
     <Dialog>
@@ -55,7 +126,7 @@ export default function Options() {
             </div>
             <button
               type="button"
-              onClick={() => setIsRandom(!isRandom)}
+              onClick={() => handleRandom()}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 isRandom ? "bg-blue-600" : "bg-gray-200"
               }`}

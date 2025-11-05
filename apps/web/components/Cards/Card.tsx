@@ -9,19 +9,26 @@ import {
 import { useState, useRef, useEffect } from "react";
 import { Settings, ChevronLeft, X } from "lucide-react";
 import "./page.css";
-import { type Card } from "@/lib/type";
+import { type CardParam } from "@/lib/type";
 import { Button } from "../ui/button";
 import router from "next/router";
 import Close from "./Close";
 import { BACKEND_URL } from "@/lib/constants";
 import Options from "./Options";
+import { getSession } from "@/lib/session";
 
 export default function CardsComponent({
   list,
   id,
+  cardParam,
 }: {
-  list: Card[];
+  list: {
+    id: string;
+    front: string;
+    back: string;
+  }[];
   id: string;
+  cardParam: CardParam;
 }) {
   const [vocabulary, setVocabulary] = useState(list);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -55,48 +62,84 @@ export default function CardsComponent({
     }
   }, [currentIndex]);
 
-  const handleContinue = async () => {
-    const response = await fetch(
-      `${BACKEND_URL}/list/vocabulary-card/${id}?reset=false`
-    );
-    const data = await response.json();
-    setVocabulary(data.vocabulary);
-  };
+  useEffect(() => {
+    if (endOfList) {
+      handleReset();
+    }
+  }, [endOfList]);
 
   const handleReset = async () => {
-    const response = await fetch(
-      `${BACKEND_URL}/list/vocabulary-card/${id}?reset=true`
-    );
-    const data = await response.json();
-    setVocabulary(data.vocabulary);
+    const session = await getSession();
+    await fetch(`${BACKEND_URL}/card/reset-card`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      body: JSON.stringify({
+        listId: id,
+      }),
+    });
   };
 
-  const handleTurn = (clickOfKey: boolean = false) => {
-    if (!isDragging && (isClicking || clickOfKey)) {
-      cardRef.current?.classList.toggle("flipped");
+  const handleTurn = (isKeyboard = false) => {
+    if (cardRef.current) {
+      if (!cardRef.current.classList.contains("flipped")) {
+        cardRef.current.classList.add("flipped");
+      } else {
+        cardRef.current.classList.remove("flipped");
+      }
+      // Ne pas empêcher le comportement par défaut pour les événements clavier
+      if (!isKeyboard) {
+        const event = window.event as Event;
+        if (event) {
+          event.preventDefault();
+        }
+      }
     }
   };
 
-  const incrementIndex = () => {
-    setCurrentIndex((prev) => {
-      const nextIndex = prev + 1;
-      if (nextIndex >= vocabulary.length) {
-        setEndOfList(true);
-        return 0;
-      }
-      return nextIndex;
+  const handleUpdateProgress = async (vocabularyId: string, isKnown: boolean) => {
+    const session = await getSession();
+    await fetch(`${BACKEND_URL}/card/progress-card`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      body: JSON.stringify({
+        listId: id,
+        vocabularyId,
+        isKnown,
+      }),
     });
   };
 
   const handleVocabularyKnow = () => {
-    animateCardExit("right", () => {
-      incrementIndex();
+    handleUpdateProgress(vocabulary[currentIndex]?.id, true)
+    animateCardOut("right", () => {
+      setCurrentIndex((prevIndex) => {
+        const newIndex = prevIndex + 1;
+        if (newIndex >= vocabulary.length) {
+          setEndOfList(true);
+          return prevIndex;
+        }
+        return newIndex;
+      });
     });
   };
 
   const handleVocabularyUnknown = () => {
-    animateCardExit("left", () => {
-      incrementIndex();
+    handleUpdateProgress(vocabulary[currentIndex]?.id, false)
+    animateCardOut("left", () => {
+      setCurrentIndex((prevIndex) => {
+        const newIndex = prevIndex + 1;
+        if (newIndex >= vocabulary.length) {
+          setEndOfList(true);
+          return prevIndex;
+        }
+        return newIndex;
+      });
     });
   };
 
@@ -109,7 +152,7 @@ export default function CardsComponent({
     }
   };
 
-  const animateCardExit = (
+  const animateCardOut = (
     direction: "left" | "right",
     onComplete?: () => void
   ) => {
@@ -157,8 +200,9 @@ export default function CardsComponent({
 
     if (cardRef.current) {
       const rotation = diffX / 20;
-      cardRef.current.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
-      cardRef.current.style.transition = "none";
+      const element = cardRef.current as HTMLElement;
+      element.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
+      element.style.transition = "none";
     }
   };
 
@@ -173,13 +217,12 @@ export default function CardsComponent({
         } else {
           handleVocabularyUnknown();
         }
-      } else {
-        if (cardRef.current) {
-          cardRef.current.style.transition = "transform 0.5s ease-out";
-          cardRef.current.style.transform = "translateX(0) rotate(0)";
-        }
+      } else if (cardRef.current) {
+        const element = cardRef.current as HTMLElement;
+        element.style.transition = "transform 0.5s ease-out";
+        element.style.transform = "translateX(0) rotate(0)";
       }
-    } else {
+    } else if (isClicking) {
       handleTurn();
     }
 
@@ -213,8 +256,9 @@ export default function CardsComponent({
 
     if (cardRef.current) {
       const rotation = diffX / 20;
-      cardRef.current.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
-      cardRef.current.style.transition = "none";
+      const element = cardRef.current as HTMLElement;
+      element.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
+      element.style.transition = "none";
     }
   };
 
@@ -229,11 +273,9 @@ export default function CardsComponent({
         } else {
           handleVocabularyUnknown();
         }
-      } else {
-        if (cardRef.current) {
-          cardRef.current.style.transition = "transform 0.5s ease-out";
-          cardRef.current.style.transform = "translateX(0) rotate(0)";
-        }
+      } else if (cardRef.current) {
+        cardRef.current.style.transition = "transform 0.5s ease-out";
+        cardRef.current.style.transform = "translateX(0) rotate(0)";
       }
     } else {
       handleTurn();
@@ -260,7 +302,7 @@ export default function CardsComponent({
                 <span className="text-sm text-gray-500">
                   {currentIndex + 1} / {vocabulary.length}
                 </span>
-                <Options />
+                <Options cardParam={cardParam} idList={id} onUpdateParams={() => {}} />
               </div>
             </CardHeader>
             <CardContent
@@ -274,10 +316,10 @@ export default function CardsComponent({
               onTouchEnd={handleTouchEnd}
             >
               <div className="flex m-0 p-0 flip-card-front" unselectable="on">
-                {vocabulary[currentIndex].front}
+                {vocabulary[currentIndex]?.front}
               </div>
               <div className="flex m-0 p-0 flip-card-back" unselectable="on">
-                {vocabulary[currentIndex].back}
+                {vocabulary[currentIndex]?.back}
               </div>
             </CardContent>
             <CardFooter className="flex-col gap-2">
@@ -287,34 +329,22 @@ export default function CardsComponent({
             </CardFooter>
           </Card>
         ) : (
-          <Card ref={cardRef} className="w-full h-full ">
-            <CardHeader>
-              <div className="flex items-center justify-between gap-2">
-                <Close />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-2">
-                <div className="flex m-0 p-0">Connu :</div>
-                <div className="flex m-0 p-0">En cours d'apprentissage :</div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Button
-                  onClick={() => {
-                    handleContinue();
-                  }}
-                >
-                  Continuer
-                </Button>
-                <Button
-                  onClick={() => {
-                    handleReset();
-                  }}
-                >
-                  Réinitialiser
-                </Button>
-              </div>
-            </CardContent>
+          <Card className="w-full h-full flex flex-col items-center justify-center p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Félicitations !</h2>
+            <p className="text-gray-600 mb-6">
+              Vous avez terminé toutes les cartes de cette liste.
+            </p>
+            <div className="flex gap-4">
+              <Button onClick={() => router.push(`/lists/${id}`)}>
+                <ChevronLeft className="mr-2 h-4 w-4" /> Retour à la liste
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => window.location.reload()}
+              >
+                <X className="mr-2 h-4 w-4" /> Recommencer
+              </Button>
+            </div>
           </Card>
         )}
       </div>

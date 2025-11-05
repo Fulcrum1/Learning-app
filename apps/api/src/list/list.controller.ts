@@ -79,11 +79,6 @@ export class ListController {
     return this.listService.findVocabularyCategory();
   }
 
-  @Get('vocabulary-card/:id')
-  findAllVocabularyCard(@Param('id') id: string, @Query('reset') reset: boolean | undefined) {
-    return this.listService.findVocabularyCard(id, reset);
-  }
-
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {

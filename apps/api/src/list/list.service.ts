@@ -630,34 +630,6 @@ export class ListService {
     }
   }
 
-  async findVocabularyCard(listId: string, reset: boolean | undefined) {
-    try {
-      const vocabularyList = await this.prisma.vocabularyList.findMany({
-        where: { listId },
-        include: {
-          vocabulary: {
-            include: {
-              VocabularyToCategories: {
-                include: {
-                  category: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          order: 'asc',
-        },
-      });
-      return {
-        vocabulary: vocabularyList.map((vl) => vl.vocabulary),
-      };
-    } catch (error) {
-      console.error('Error fetching vocabulary cards:', error);
-      throw new Error('Failed to fetch vocabulary cards');
-    }
-  }
-
   async findOne(id: string) {
     try {
       const list = await this.prisma.lists.findUnique({

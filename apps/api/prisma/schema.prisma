@@ -16,6 +16,8 @@ model User {
   updatedAt          DateTime             @updatedAt
   lists              Lists[]
   vocabularyProgress VocabularyProgress[]
+
+  CardParam CardParam[]
 }
 
 model Vocabulary {
@@ -55,6 +57,7 @@ model VocabularyProgress {
   id           String     @id @default(cuid())
   score        Int        @default(0)
   lastReview   DateTime?
+  reviewNumber Int        @default(0)
   user         User       @relation(fields: [userId], references: [id])
   userId       String
   vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id])
@@ -88,6 +91,16 @@ model VocabularyToCategories {
   updatedAt    DateTime   @updatedAt
 
   @@unique([vocabularyId, categoryId])
+}
+
+model CardParam {
+  id                 String   @id @default(cuid())
+  user               User     @relation(fields: [userId], references: [id])
+  userId             String
+  random             Boolean  @default(false)
+  translationOnVerso Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 enum Type {

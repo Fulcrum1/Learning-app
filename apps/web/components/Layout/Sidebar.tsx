@@ -12,7 +12,6 @@ import {
 import { SidebarTrigger } from "../ui/sidebar";
 import NavButton from "./NavButton";
 import { Button } from "../ui/button";
-import { getSession } from "@/lib/session";
 
 interface AppSidebarProps {
   user?: string;
@@ -20,7 +19,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ user }: AppSidebarProps) {
   const [activeItem, setActiveItem] = useState("dashboard");
-
+  
   const userInitials = user
     ?.split(" ")
     .map((name) => name[0])
