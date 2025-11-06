@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCardParamDto } from './dto/create-card-param.dto';
 import { UpdateCardParamDto } from './dto/update-card-param.dto';
-import { PrismaService } from '@prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { $ } from 'bun';
 
