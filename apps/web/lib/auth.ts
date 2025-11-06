@@ -58,8 +58,8 @@ export const login = async (
     };
   }
 
-  // const response = await fetch(`${BACKEND_URL}/auth/login`, {
-  const response = await fetch(`http://127.0.0.1:8000/auth/login`, {
+  // const response = await fetch(`http://127.0.0.1:8000/auth/login`, {
+    const response = await fetch(`${BACKEND_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
