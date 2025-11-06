@@ -1,7 +1,7 @@
 // import { Injectable, NotFoundException } from '@nestjs/common';
 // import { CreateListDto } from './dto/create-list.dto';
 // import { UpdateListDto } from './dto/update-list.dto';
-// import { PrismaService } from 'src/prisma/prisma.service';
+// import { PrismaService } from '@prisma/prisma.service';
 
 // interface CreateProgressDto {
 //   vocabulary: string[];
@@ -433,7 +433,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '@prisma/prisma.service';
 
 interface CreateProgressDto {
   vocabulary: string[];
