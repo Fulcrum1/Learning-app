@@ -87,7 +87,6 @@ export default async function CardPage({ params }: PageProps) {
       .filter(Boolean) // This removes all null values
       .sort(() => (cardParam?.random ? Math.random() - 0.5 : 0));
 
-    console.log(vocabulary);
     return (
       <CardsComponent
         list={vocabulary}

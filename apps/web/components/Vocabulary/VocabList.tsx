@@ -14,7 +14,6 @@ export default function VocabList({ page }: { page: string }) {
           method: "GET",
         });
         const data = await response.json();
-        console.log("data", data);
 
         setVocabulary(data);
       } catch (error) {

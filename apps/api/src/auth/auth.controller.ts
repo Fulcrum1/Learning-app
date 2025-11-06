@@ -23,7 +23,6 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('protected')
   getAll(@Request() req) {
-    console.log({user: req.user});
     return JSON.stringify('You are protected');
   }
 }

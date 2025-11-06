@@ -41,8 +41,6 @@ export class CardController {
     @Req() req: Request & { user: User },
     @Body() updateCardParamDto: UpdateCardParamDto,
   ) {
-    console.log({userId: req.user.id});
-    console.log({updateCardParamDto});
     return this.cardService.updateParamCard(req.user.id, updateCardParamDto);
   }
 
@@ -56,7 +54,16 @@ export class CardController {
     return this.cardService.updateProgress(req.user.id, body);
   }
 
-  // Reset the progress of a user
+  @UseGuards(JwtAuthGuard)
+  @Put('rollback-progress-card')
+  rollbackProgressCard(
+    @Req() req: Request & { user: User },
+    @Body() body: { listId: string, vocabularyId: string },
+  ) {
+    return this.cardService.rollbackProgress(req.user.id, body);
+  }
+
+  // Reset the list of a user
   @UseGuards(JwtAuthGuard)
   @Put('reset-card')
   resetCard(

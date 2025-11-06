@@ -11,15 +11,28 @@ export class CardService {
 
   async findVocabularyCard(listId: string, reset: boolean | undefined) {
     try {
-      const vocabularyList = await this.prisma.vocabularyList.findMany({
+      let vocabularyList = await this.prisma.vocabularyList.findMany({
         where: { listId },
-        include: {
-          vocabulary: true,
-        },
-        orderBy: {
-          order: 'asc',
-        },
+        include: { vocabulary: true },
+        orderBy: { order: 'asc' },
       });
+
+      const allReviewsTrue = vocabularyList.every(
+        (item) => item.review === true,
+      );
+      if (allReviewsTrue || reset) {
+        await this.prisma.vocabularyList.updateMany({
+          where: { listId },
+          data: { review: false },
+        });
+
+        vocabularyList = await this.prisma.vocabularyList.findMany({
+          where: { listId },
+          include: { vocabulary: true },
+          orderBy: { order: 'asc' },
+        });
+      }
+
       return {
         vocabulary: vocabularyList.map((vl) => ({
           ...vl.vocabulary,
@@ -31,14 +44,9 @@ export class CardService {
       throw new Error('Failed to fetch vocabulary cards');
     }
   }
-
+  
   async updateProgress(userId: string, updateCardDto: UpdateCardDto) {
     try {
-      console.log({ userId });
-      console.log({ listId: updateCardDto.listId });
-      console.log({ vocabularyId: updateCardDto.vocabularyId });
-      console.log({ isKnown: updateCardDto.isKnown });
-
       // Update Vocabulary list -> review
       const VocabularyList = await this.prisma.vocabularyList.update({
         where: {
@@ -51,18 +59,19 @@ export class CardService {
       });
 
       // Update Vocabulary Progress
-      const vocabularyProgress = await this.prisma.vocabularyProgress.findUnique({
-        where: {
-          userId_vocabularyId: {
-            userId: userId,
-            vocabularyId: updateCardDto.vocabularyId,
+      const vocabularyProgress =
+        await this.prisma.vocabularyProgress.findUnique({
+          where: {
+            userId_vocabularyId: {
+              userId: userId,
+              vocabularyId: updateCardDto.vocabularyId,
+            },
           },
-        },
-      });
+        });
 
       // If Vocabulary Progress doesn't exist, create it
       if (!vocabularyProgress) {
-        await this.prisma.vocabularyProgress.create({
+        const newProgress = await this.prisma.vocabularyProgress.create({
           data: {
             userId,
             vocabularyId: updateCardDto.vocabularyId,
@@ -71,13 +80,35 @@ export class CardService {
             lastReview: new Date(),
           },
         });
+        // Enregistrer la création dans l'historique
+        await this.prisma.vocabularyProgressHistory.create({
+          data: {
+            progressId: newProgress.id,
+            score: newProgress.score,
+            lastReview: newProgress.lastReview,
+            reviewNumber: newProgress.reviewNumber,
+            changedBy: 'SYSTEM', // ou userId si tu veux tracer qui a fait le changement
+            changeType: 'CREATE',
+          },
+        });
         return;
       }
+
+      // Enregistrer l'état actuel dans l'historique avant la mise à jour
+      await this.prisma.vocabularyProgressHistory.create({
+        data: {
+          progressId: vocabularyProgress.id,
+          score: vocabularyProgress.score,
+          lastReview: vocabularyProgress.lastReview,
+          reviewNumber: vocabularyProgress.reviewNumber,
+          changedBy: userId, // ou 'SYSTEM' si c'est automatique
+          changeType: 'UPDATE_BEFORE',
+        },
+      });
 
       // Calculate the new score
       const { score: currentScore, reviewNumber } = vocabularyProgress;
       const learningFactor = 0.2;
-
       let newScore = currentScore;
 
       // Update the score
@@ -94,7 +125,7 @@ export class CardService {
       newScore = Math.max(1, Math.min(100, newScore));
 
       // Update the database
-      await this.prisma.vocabularyProgress.update({
+      const updatedProgress = await this.prisma.vocabularyProgress.update({
         where: {
           userId_vocabularyId: {
             userId: userId,
@@ -107,9 +138,93 @@ export class CardService {
           lastReview: new Date(),
         },
       });
+
+      // Optionnel : Enregistrer aussi la mise à jour dans l'historique
+      // await this.prisma.vocabularyProgressHistory.create({
+      //   data: {
+      //     progressId: updatedProgress.id,
+      //     score: updatedProgress.score,
+      //     lastReview: updatedProgress.lastReview,
+      //     reviewNumber: updatedProgress.reviewNumber,
+      //     changedBy: userId,
+      //     changeType: 'UPDATE_AFTER',
+      //   },
+      // });
     } catch (error) {
       console.error('Error updating vocabulary cards:', error);
       throw new Error('Failed to update vocabulary cards');
+    }
+  }
+
+  async rollbackProgress(
+    userId: string,
+    body: { listId: string; vocabularyId: string },
+  ) {
+    try {
+      // 1. Récupérer le VocabularyProgress actuel
+      const currentProgress = await this.prisma.vocabularyProgress.findUnique({
+        where: {
+          userId_vocabularyId: {
+            userId: userId,
+            vocabularyId: body.vocabularyId,
+          },
+        },
+      });
+
+      if (!currentProgress) {
+        throw new Error(
+          'Aucun VocabularyProgress trouvé pour cet utilisateur et ce vocabulaire.',
+        );
+      }
+
+      // 2. Récupérer la dernière entrée dans l'historique avant la dernière mise à jour
+      const lastHistoryEntry =
+        await this.prisma.vocabularyProgressHistory.findFirst({
+          where: {
+            progressId: currentProgress.id,
+          },
+          orderBy: {
+            changedAt: 'desc', // Tri par date décroissante pour avoir la dernière entrée
+          },
+        });
+
+      if (!lastHistoryEntry) {
+        throw new Error(
+          "Aucune entrée dans l'historique pour effectuer un rollback.",
+        );
+      }
+
+      // 3. Mettre à jour VocabularyProgress avec les valeurs de l'historique
+      const rolledBackProgress = await this.prisma.vocabularyProgress.update({
+        where: {
+          userId_vocabularyId: {
+            userId: userId,
+            vocabularyId: body.vocabularyId,
+          },
+        },
+        data: {
+          score: lastHistoryEntry.score,
+          lastReview: lastHistoryEntry.lastReview,
+          reviewNumber: lastHistoryEntry.reviewNumber,
+        },
+      });
+
+      // 4. (Optionnel) Enregistrer cette action de rollback dans l'historique
+      await this.prisma.vocabularyProgressHistory.create({
+        data: {
+          progressId: currentProgress.id,
+          score: rolledBackProgress.score,
+          lastReview: rolledBackProgress.lastReview,
+          reviewNumber: rolledBackProgress.reviewNumber,
+          changedBy: userId,
+          changeType: 'ROLLBACK',
+        },
+      });
+
+      return rolledBackProgress;
+    } catch (error) {
+      console.error('Error rolling back vocabulary progress:', error);
+      throw new Error('Failed to rollback vocabulary progress');
     }
   }
 

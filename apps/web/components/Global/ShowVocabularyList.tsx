@@ -68,10 +68,6 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
     }
   };
 
-  useEffect(() => {
-    console.log(vocabulary);
-  }, [vocabulary]);
-
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     // if (open && vocabulary.length === 0) {

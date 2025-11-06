@@ -110,7 +110,6 @@ export default function AddModal() {
       });
 
       const result = await response.json();
-      console.log("Liste créée avec succès:", result);
 
       // Fermer la modale et réinitialiser le formulaire après un succès
       setOpen(false);

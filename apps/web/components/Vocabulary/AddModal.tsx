@@ -260,7 +260,6 @@ export default function AddModal() {
           throw new Error(errorData.error || `Erreur HTTP: ${response.status}`);
         }
         const data = await response;
-        console.log("Vocabulaires ajoutés avec succès:", data);
 
         setBulkText("");
         // alert(

@@ -45,7 +45,6 @@ export class AuthService {
   }
 
   async validateJwtUser(userId: string) {
-    console.log({ userId });
     const user = await this.usersService.findOne(userId);
 
     if (!user) throw new Error('User not found');

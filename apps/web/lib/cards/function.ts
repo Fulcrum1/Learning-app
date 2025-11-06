@@ -14,12 +14,10 @@ export const handleTurn = (cardRef: React.RefObject<HTMLDivElement>) => {
 };
 
 export const handleVocabularyKnow = (cardRef: React.RefObject<HTMLDivElement>) => {
-  console.log("Vocabulary know");
   animateCardExit("right", cardRef);
 };
 
 export const handleVocabularyUnknown = (cardRef: React.RefObject<HTMLDivElement>) => {
-  console.log("Vocabulary unknown");
   animateCardExit("left", cardRef);
 };
 
