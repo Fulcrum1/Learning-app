@@ -10,7 +10,7 @@ import {
 import { CardService } from './card.service';
 import { UpdateCardParamDto } from './dto/update-card-param.dto';
 import { Query } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import type { User } from '@prisma/client';
 import type { Request } from 'express';
 
