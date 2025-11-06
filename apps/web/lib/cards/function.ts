@@ -87,13 +87,14 @@ export const handleMouseUp = (e: React.MouseEvent, cardRef: React.RefObject<HTML
 };
 
 export const handleTouchStart = (e: React.TouchEvent, cardRef: React.RefObject<HTMLDivElement>) => {
+  if (!e.touches[0]) return;
   setIsDragging(true);
   setStartX(e.touches[0].clientX);
   setCurrentX(e.touches[0].clientX);
 };
 
 export const handleTouchMove = (e: React.TouchEvent, cardRef: React.RefObject<HTMLDivElement>) => {
-  if (!isDragging) return;
+  if (!isDragging || !e.touches[0]) return;
 
   setCurrentX(e.touches[0].clientX);
   const diff = e.touches[0].clientX - startX;

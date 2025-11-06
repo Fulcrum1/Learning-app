@@ -205,12 +205,7 @@ export default function AddModal() {
       setIsLoading(true);
 
       if (mode === "single") {
-        const categoryNames = formData.categories
-          ? formData.categories
-              .split(",")
-              .map((c) => c.trim())
-              .filter(Boolean)
-          : [];
+        const categoryNames = formData.categories || [];
 
         const response = await fetch(`${BACKEND_URL}/vocabulary/single`, {
           method: "POST",

@@ -119,6 +119,7 @@ export default function CardsComponent({
   };
 
   const handleVocabularyKnow = () => {
+    if (!vocabulary[currentIndex]?.id) return;
     handleUpdateProgress(vocabulary[currentIndex]?.id, true);
     animateCardOut("right", () => {
       setCurrentIndex((prevIndex) => {
@@ -133,6 +134,7 @@ export default function CardsComponent({
   };
 
   const handleVocabularyUnknown = () => {
+    if (!vocabulary[currentIndex]?.id) return;
     handleUpdateProgress(vocabulary[currentIndex]?.id, false);
     animateCardOut("left", () => {
       setCurrentIndex((prevIndex) => {
@@ -252,6 +254,7 @@ export default function CardsComponent({
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (!e.touches[0]) return;
     setIsDragging(false);
     setStartX(e.touches[0].clientX);
     setCurrentX(e.touches[0].clientX);
@@ -259,6 +262,7 @@ export default function CardsComponent({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startX === 0) return;
+    if (!e.touches[0]) return;
 
     const diffX = e.touches[0].clientX - startX;
     const absDiff = Math.abs(diffX);
@@ -305,73 +309,6 @@ export default function CardsComponent({
     setCurrentX(0);
   };
 
-  // return (
-  //   <div className="h-full flex items-center justify-center overflow-hidden">
-  //     <div className="w-1/2 h-full flex items-center justify-center relative">
-  //       {!endOfList ? (
-  //         <Card
-  //           ref={cardRef}
-  //           className="w-full h-full flip-card"
-  //           style={{ cursor: isDragging ? "grabbing" : "grab" }}
-  //         >
-  //           <CardHeader>
-  //             <div className="flex items-center justify-between gap-2">
-  //               <Close />
-  //               <span className="text-sm text-gray-500">
-  //                 {currentIndex + 1} / {vocabulary.length}
-  //               </span>
-  //               <Options
-  //                 cardParam={cardParam}
-  //                 idList={id}
-  //                 onUpdateParams={() => {}}
-  //               />
-  //             </div>
-  //           </CardHeader>
-  //           <CardContent
-  //             className="flip-card-inner"
-  //             onMouseDown={handleMouseDown}
-  //             onMouseMove={handleMouseMove}
-  //             onMouseUp={handleMouseUp}
-  //             onMouseLeave={handleMouseUp}
-  //             onTouchStart={handleTouchStart}
-  //             onTouchMove={handleTouchMove}
-  //             onTouchEnd={handleTouchEnd}
-  //           >
-  //             <div className="flex m-0 p-0 flip-card-front" unselectable="on">
-  //               {vocabulary[currentIndex]?.front}
-  //             </div>
-  //             <div className="flex m-0 p-0 flip-card-back" unselectable="on">
-  //               {vocabulary[currentIndex]?.back}
-  //             </div>
-  //           </CardContent>
-  //           <CardFooter className="flex-col gap-2">
-  //             {currentIndex > 0 && (
-  //               <button onClick={handlePrevious}>Retour</button>
-  //             )}
-  //           </CardFooter>
-  //         </Card>
-  //       ) : (
-  //         <Card className="w-full h-full flex flex-col items-center justify-center p-8 text-center">
-  //           <h2 className="text-2xl font-bold mb-4">Félicitations !</h2>
-  //           <p className="text-gray-600 mb-6">
-  //             Vous avez terminé toutes les cartes de cette liste.
-  //           </p>
-  //           <div className="flex gap-4">
-  //             <Button onClick={() => router.push(`/lists/${id}`)}>
-  //               <ChevronLeft className="mr-2 h-4 w-4" /> Retour à la liste
-  //             </Button>
-  //             <Button
-  //               variant="outline"
-  //               onClick={() => window.location.reload()}
-  //             >
-  //               <X className="mr-2 h-4 w-4" /> Recommencer
-  //             </Button>
-  //           </div>
-  //         </Card>
-  //       )}
-  //     </div>
-  //   </div>
-  // );
   return (
     <div className="h-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="w-full max-w-2xl h-full flex items-center justify-center relative">
