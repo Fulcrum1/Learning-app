@@ -310,12 +310,12 @@ export default function CardsComponent({
   };
 
   return (
-    <div className="h-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div className="h-full flex items-center justify-center overflow-hidden  p-4">
       <div className="w-full max-w-2xl h-full flex items-center justify-center relative">
         {!endOfList ? (
           <Card
             ref={cardRef}
-            className="w-full max-h-[600px] flip-card shadow-2xl border-0 bg-white/80 backdrop-blur-sm hover:shadow-3xl transition-all duration-300"
+            className="w-full max-h-[600px] flip-card hover:shadow-3xl transition-all duration-300"
             style={{ cursor: isDragging ? "grabbing" : "grab" }}
           >
             <CardHeader className="border-b border-slate-200/50 bg-gradient-to-r from-white to-slate-50">

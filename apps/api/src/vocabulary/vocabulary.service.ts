@@ -99,9 +99,42 @@ export class VocabularyService {
     return resultCategories;
   }
 
-  findAll() {
-    const vocabulary = this.prisma.vocabulary.findMany();
-    return vocabulary;
+  async findAll() {
+    const vocabulary = await this.prisma.vocabulary.findMany();
+    const knowVocabulary = await this.prisma.vocabularyProgress.findMany({
+      where: {
+        score: {
+          gte: 80,
+        },
+      },
+      select: {
+        vocabularyId: true,
+      },
+    });
+
+    const learnVocabulary = await this.prisma.vocabularyProgress.findMany({
+      where: {
+        score: {
+          gte: 20,
+          lt: 80,
+        },
+      },
+      select: {
+        vocabularyId: true,
+      },
+    });
+
+    const unknownVocabulary = await this.prisma.vocabularyProgress.findMany({
+      where: {
+        score: {
+          lt: 20,
+        },
+      },
+      select: {
+        vocabularyId: true,
+      },
+    });
+    return { vocabulary, knowVocabulary, learnVocabulary, unknownVocabulary };
   }
 
   findOne(id: string) {
