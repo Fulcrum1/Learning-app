@@ -39,6 +39,7 @@ export default function CardsComponent({
   const [isClicking, setIsClicking] = useState(false);
   const [endOfList, setEndOfList] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const swipeThreshold = 0.2;
 
   // Handle keyboard events
   useEffect(() => {
@@ -180,7 +181,7 @@ export default function CardsComponent({
       const distance =
         direction === "right" ? window.innerWidth : -window.innerWidth;
       cardRef.current.style.transition =
-        "transform 0.5s ease-out, opacity 0.5s ease-out";
+        `transform ${swipeThreshold}s ease-out, opacity ${swipeThreshold}s ease-out`;
       cardRef.current.style.transform = `translateX(${distance}px) rotate(${direction === "right" ? 20 : -20}deg)`;
       cardRef.current.style.opacity = "0";
       cardRef.current.classList.remove("flipped");
@@ -239,7 +240,7 @@ export default function CardsComponent({
         }
       } else if (cardRef.current) {
         const element = cardRef.current as HTMLElement;
-        element.style.transition = "transform 0.5s ease-out";
+        element.style.transition = `transform ${swipeThreshold}s ease-out`;
         element.style.transform = "translateX(0) rotate(0)";
       }
     } else if (isClicking) {
@@ -296,7 +297,7 @@ export default function CardsComponent({
           handleVocabularyUnknown();
         }
       } else if (cardRef.current) {
-        cardRef.current.style.transition = "transform 0.5s ease-out";
+        cardRef.current.style.transition = `transform ${swipeThreshold}s ease-out`;
         cardRef.current.style.transform = "translateX(0) rotate(0)";
       }
     } else {

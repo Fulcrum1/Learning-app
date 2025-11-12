@@ -55,7 +55,7 @@ export class CardService {
             vocabularyId: updateCardDto.vocabularyId,
           },
         },
-        data: { review: true },
+        data: { review: updateCardDto.isKnown ? true : false },
       });
 
       // Update Vocabulary Progress
@@ -138,18 +138,6 @@ export class CardService {
           lastReview: new Date(),
         },
       });
-
-      // Optionnel : Enregistrer aussi la mise à jour dans l'historique
-      // await this.prisma.vocabularyProgressHistory.create({
-      //   data: {
-      //     progressId: updatedProgress.id,
-      //     score: updatedProgress.score,
-      //     lastReview: updatedProgress.lastReview,
-      //     reviewNumber: updatedProgress.reviewNumber,
-      //     changedBy: userId,
-      //     changeType: 'UPDATE_AFTER',
-      //   },
-      // });
     } catch (error) {
       console.error('Error updating vocabulary cards:', error);
       throw new Error('Failed to update vocabulary cards');
