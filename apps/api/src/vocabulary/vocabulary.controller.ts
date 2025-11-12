@@ -1,7 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { VocabularyService } from './vocabulary.service';
 import { CreateVocabularyDto } from './dto/create-vocabulary.dto';
 import { UpdateVocabularyDto } from './dto/update-vocabulary.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
+import { User } from '@prisma/client';
 
 @Controller('vocabulary')
 export class VocabularyController {
@@ -12,9 +15,10 @@ export class VocabularyController {
     return this.vocabularyService.createSingle(createVocabularyDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('multiple')
-  createMultiple(@Body() createVocabularyDto: CreateVocabularyDto[]) {
-    return this.vocabularyService.createMultiple(createVocabularyDto);
+  createMultiple(@Body() createVocabularyDto: CreateVocabularyDto[], @Request() req: Request & { user: User }) {
+    return this.vocabularyService.createMultiple(createVocabularyDto, req.user.id);
   }
 
   @Get()

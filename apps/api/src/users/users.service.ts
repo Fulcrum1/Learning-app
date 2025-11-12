@@ -26,6 +26,30 @@ export class UsersService {
       },
     });
 
+    const completeList = await this.prisma.lists.create({
+      data: {
+        name: 'Complete List',
+        description: 'Liste complète',
+        userId: userCreated.id,
+      },
+    });
+
+    const knownList = await this.prisma.lists.create({
+      data: {
+        name: 'Known List',
+        description: 'Liste des mots connus',
+        userId: userCreated.id,
+      },
+    });
+
+    const unknownList = await this.prisma.lists.create({
+      data: {
+        name: 'Unknown List',
+        description: 'Liste des mots inconnus',
+        userId: userCreated.id,
+      },
+    });
+
     return userCreated;
   }
 

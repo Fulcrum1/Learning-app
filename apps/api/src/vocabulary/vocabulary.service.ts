@@ -14,12 +14,71 @@ export class VocabularyService {
     return vocabulary;
   }
 
-  async createMultiple(createVocabularyDto: CreateVocabularyDto[]) {
+  // Create multiple vocabularies
+  async createMultiple(createVocabularyDto: CreateVocabularyDto[], userId: string) {
     if (!Array.isArray(createVocabularyDto)) {
       throw new Error(
         'Le format des données est invalide : un tableau est attendu.',
       );
     }
+    // Find or create Complete List
+    let completeList = await this.prisma.lists.findFirst({
+      where: {
+        name: 'Complete List',
+        userId: userId,
+      }
+    });
+
+    if (!completeList) {
+      completeList = await this.prisma.lists.create({
+        data: {
+          name: 'Complete List',
+          description: 'Liste complète',
+          userId: userId,
+        },
+      });
+    }
+
+    // Find or create Unknown List
+    let unknownList = await this.prisma.lists.findFirst({
+      where: {
+        name: 'Unknown List',
+        userId: userId,
+      },
+    });
+
+    if (!unknownList) {
+      unknownList = await this.prisma.lists.create({
+        data: {
+          name: 'Unknown List',
+          description: 'Liste inconnue',
+          userId: userId,
+        },
+      });
+    }
+
+    // Find last order of Complete List
+    let lastOrderCompleteList = await this.prisma.vocabularyList.findFirst({
+      where: {
+        listId: completeList.id,
+      },
+      orderBy: {
+        order: 'desc',
+      },
+    });
+
+    // Find last order of Unknown List
+    let lastOrderUnknownList = await this.prisma.vocabularyList.findFirst({
+      where: {
+        listId: unknownList.id,
+      },
+      orderBy: {
+        order: 'desc',
+      },
+    });
+
+    let orderCompleteList = lastOrderCompleteList?.order || 1;
+    let orderUnknownList = lastOrderUnknownList?.order || 1;
 
     const results = [];
 
@@ -38,6 +97,7 @@ export class VocabularyService {
       );
 
       try {
+        // Create new vocabulary
         const newVocabulary = await this.prisma.vocabulary.create({
           data: {
             name: vocabularyData.name,
@@ -46,6 +106,28 @@ export class VocabularyService {
           },
         });
 
+        orderCompleteList += 1;
+        orderUnknownList += 1;
+
+        // Update Complete List
+        const updateCompleteList = await this.prisma.vocabularyList.create({
+          data: {
+            vocabularyId: newVocabulary.id,
+            listId: completeList.id,
+            order: orderCompleteList,
+          },
+        });
+
+        // Update Unknown List
+        const updateUnknownList = await this.prisma.vocabularyList.create({
+          data: {
+            vocabularyId: newVocabulary.id,
+            listId: unknownList.id,
+            order: orderUnknownList,
+          },
+        });
+
+        // Update Vocabulary Categories
         const newVocabularyCategories =
           await this.prisma.vocabularyToCategories.createMany({
             data: categories.map((category) => ({

@@ -44,7 +44,7 @@ export class CardService {
       throw new Error('Failed to fetch vocabulary cards');
     }
   }
-  
+
   async updateProgress(userId: string, updateCardDto: UpdateCardDto) {
     try {
       // Update Vocabulary list -> review
@@ -138,10 +138,82 @@ export class CardService {
           lastReview: new Date(),
         },
       });
+
+      this.updateList(
+        userId,
+        updateCardDto.vocabularyId,
+        newScore,
+        currentScore,
+      );
     } catch (error) {
       console.error('Error updating vocabulary cards:', error);
       throw new Error('Failed to update vocabulary cards');
     }
+  }
+
+  async updateList(
+    userId: string,
+    vocabularyId: string,
+    newScore: number,
+    currentScore: number,
+  ) {
+    // If the vocabulary is becoming known
+    const isBecomingKnown = newScore >= 80 && currentScore < 80;
+    // If the vocabulary is becoming unknown
+    const isBecomingUnknown = newScore < 80 && currentScore >= 80;
+
+    // If no status change, exit
+    if (!isBecomingKnown && !isBecomingUnknown) {
+      return;
+    }
+
+    // Get both lists
+    const [knowList, unknownList] = await Promise.all([
+      this.prisma.lists.findFirst({
+        where: { name: 'Known List', userId },
+      }),
+      this.prisma.lists.findFirst({
+        where: { name: 'Unknown List', userId },
+      }),
+    ]);
+
+    if (!knowList || !unknownList) {
+      throw new Error('Required lists not found');
+    }
+
+    const { sourceList, targetList } = isBecomingKnown
+      ? { sourceList: unknownList, targetList: knowList }
+      : { sourceList: knowList, targetList: unknownList };
+
+    // Get the last order of the target list
+    const lastEntry = await this.prisma.vocabularyList.findFirst({
+      where: { listId: targetList.id },
+      orderBy: { order: 'desc' },
+      select: { order: true },
+    });
+
+    const nextOrder = lastEntry ? lastEntry.order + 1 : 1;
+
+    // Transaction to ensure consistency
+    await this.prisma.$transaction([
+      // Remove from source list
+      this.prisma.vocabularyList.delete({
+        where: {
+          listId_vocabularyId: {
+            listId: sourceList.id,
+            vocabularyId,
+          },
+        },
+      }),
+      // Add to target list with the correct order
+      this.prisma.vocabularyList.create({
+        data: {
+          listId: targetList.id,
+          vocabularyId,
+          order: nextOrder,
+        },
+      }),
+    ]);
   }
 
   async rollbackProgress(
@@ -149,7 +221,7 @@ export class CardService {
     body: { listId: string; vocabularyId: string },
   ) {
     try {
-      // 1. Récupérer le VocabularyProgress actuel
+      // 1. Get current progress
       const currentProgress = await this.prisma.vocabularyProgress.findUnique({
         where: {
           userId_vocabularyId: {
@@ -165,14 +237,14 @@ export class CardService {
         );
       }
 
-      // 2. Récupérer la dernière entrée dans l'historique avant la dernière mise à jour
+      // 2. Get last history entry
       const lastHistoryEntry =
         await this.prisma.vocabularyProgressHistory.findFirst({
           where: {
             progressId: currentProgress.id,
           },
           orderBy: {
-            changedAt: 'desc', // Tri par date décroissante pour avoir la dernière entrée
+            changedAt: 'desc',
           },
         });
 
@@ -182,7 +254,7 @@ export class CardService {
         );
       }
 
-      // 3. Mettre à jour VocabularyProgress avec les valeurs de l'historique
+      // 3. Update VocabularyProgress with history values
       const rolledBackProgress = await this.prisma.vocabularyProgress.update({
         where: {
           userId_vocabularyId: {
@@ -197,7 +269,7 @@ export class CardService {
         },
       });
 
-      // 4. (Optionnel) Enregistrer cette action de rollback dans l'historique
+      // 4. Save this rollback action in the history
       await this.prisma.vocabularyProgressHistory.create({
         data: {
           progressId: currentProgress.id,
