@@ -259,6 +259,7 @@ export default function VocabularyDashboard() {
       const session = await getSession();
       const response = await fetch(`${BACKEND_URL}/dashboard`, {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${session?.accessToken}`,
         },
       });
