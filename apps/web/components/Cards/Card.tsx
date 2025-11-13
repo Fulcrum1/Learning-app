@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Card,
   CardContent,
@@ -13,7 +12,11 @@ import { type CardParam } from "@/lib/type";
 import { Button } from "../ui/button";
 import router from "next/router";
 import Close from "./Close";
-import { BACKEND_URL } from "@/lib/constants";
+import {
+  BACKEND_URL,
+  SWIPE_THRESHOLD_TIME,
+  SWIPE_THRESHOLD_DISTANCE,
+} from "@/lib/constants";
 import Options from "./Options";
 import { getSession } from "@/lib/session";
 
@@ -39,7 +42,7 @@ export default function CardsComponent({
   const [isClicking, setIsClicking] = useState(false);
   const [endOfList, setEndOfList] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const swipeThreshold = 0.2;
+  const swipeThresholdTime = SWIPE_THRESHOLD_TIME;
 
   // Handle keyboard events
   useEffect(() => {
@@ -53,10 +56,8 @@ export default function CardsComponent({
         handleVocabularyUnknown();
       }
     };
-
     if (!endOfList) {
       window.addEventListener("keydown", handleKeyDown);
-
       return () => {
         window.removeEventListener("keydown", handleKeyDown);
       };
@@ -90,7 +91,6 @@ export default function CardsComponent({
       } else {
         cardRef.current.classList.remove("flipped");
       }
-      // Ne pas empêcher le comportement par défaut pour les événements clavier
       if (!isKeyboard) {
         const event = window.event as Event;
         if (event) {
@@ -153,11 +153,9 @@ export default function CardsComponent({
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
       setCurrentIndex(newIndex);
-
       if (cardRef.current) {
         cardRef.current.classList.remove("flipped");
       }
-
       const session = await getSession();
       await fetch(`${BACKEND_URL}/card/rollback-progress-card`, {
         method: "PUT",
@@ -180,12 +178,10 @@ export default function CardsComponent({
     if (cardRef.current) {
       const distance =
         direction === "right" ? window.innerWidth : -window.innerWidth;
-      cardRef.current.style.transition =
-        `transform ${swipeThreshold}s ease-out, opacity ${swipeThreshold}s ease-out`;
+      cardRef.current.style.transition = `transform ${swipeThresholdTime}s ease-out, opacity ${swipeThresholdTime}s ease-out`;
       cardRef.current.style.transform = `translateX(${distance}px) rotate(${direction === "right" ? 20 : -20}deg)`;
       cardRef.current.style.opacity = "0";
       cardRef.current.classList.remove("flipped");
-
       setTimeout(() => {
         if (cardRef.current) {
           cardRef.current.style.transition = "none";
@@ -206,19 +202,14 @@ export default function CardsComponent({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (startX === 0) return;
-
     const diffX = e.clientX - startX;
     const absDiff = Math.abs(diffX);
-
     if (absDiff > 5 && !isDragging) {
       setIsDragging(true);
     }
-
     if (!isDragging) return;
-
     setCurrentX(e.clientX);
     setOffsetX(diffX);
-
     if (cardRef.current) {
       const rotation = diffX / 20;
       const element = cardRef.current as HTMLElement;
@@ -229,10 +220,8 @@ export default function CardsComponent({
 
   const handleMouseUp = () => {
     const diff = currentX - startX;
-    const threshold = 150;
-
     if (isDragging) {
-      if (Math.abs(diff) > threshold) {
+      if (Math.abs(diff) > SWIPE_THRESHOLD_DISTANCE) {
         if (diff > 0) {
           handleVocabularyKnow();
         } else {
@@ -240,13 +229,12 @@ export default function CardsComponent({
         }
       } else if (cardRef.current) {
         const element = cardRef.current as HTMLElement;
-        element.style.transition = `transform ${swipeThreshold}s ease-out`;
+        element.style.transition = `transform ${swipeThresholdTime}s ease-out`;
         element.style.transform = "translateX(0) rotate(0)";
       }
     } else if (isClicking) {
       handleTurn();
     }
-
     setIsClicking(false);
     setIsDragging(false);
     setOffsetX(0);
@@ -264,19 +252,14 @@ export default function CardsComponent({
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startX === 0) return;
     if (!e.touches[0]) return;
-
     const diffX = e.touches[0].clientX - startX;
     const absDiff = Math.abs(diffX);
-
     if (absDiff > 5 && !isDragging) {
       setIsDragging(true);
     }
-
     if (!isDragging) return;
-
     setCurrentX(e.touches[0].clientX);
     setOffsetX(diffX);
-
     if (cardRef.current) {
       const rotation = diffX / 20;
       const element = cardRef.current as HTMLElement;
@@ -287,23 +270,20 @@ export default function CardsComponent({
 
   const handleTouchEnd = () => {
     const diff = currentX - startX;
-    const threshold = 150;
-
     if (isDragging) {
-      if (Math.abs(diff) > threshold) {
+      if (Math.abs(diff) > SWIPE_THRESHOLD_DISTANCE) {
         if (diff > 0) {
           handleVocabularyKnow();
         } else {
           handleVocabularyUnknown();
         }
       } else if (cardRef.current) {
-        cardRef.current.style.transition = `transform ${swipeThreshold}s ease-out`;
+        cardRef.current.style.transition = `transform ${swipeThresholdTime}s ease-out`;
         cardRef.current.style.transform = "translateX(0) rotate(0)";
       }
     } else {
       handleTurn();
     }
-
     setIsDragging(false);
     setOffsetX(0);
     setStartX(0);
@@ -400,7 +380,6 @@ export default function CardsComponent({
               </div>
               <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full animate-ping" />
             </div>
-
             <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
               Félicitations !
             </h2>
@@ -408,7 +387,6 @@ export default function CardsComponent({
               Vous avez terminé toutes les cartes de cette liste. Excellent
               travail ! 🎉
             </p>
-
             <div className="flex gap-4 flex-wrap justify-center">
               <Button
                 onClick={() => router.push(`/lists/${id}`)}
