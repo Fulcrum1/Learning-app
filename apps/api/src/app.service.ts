@@ -46,6 +46,18 @@ export class AppService {
         },
       });
 
+      // const lastListLearned = await this.prisma.vocabularyList.findMany({
+      //   where: {
+      //     updatedAt: {
+      //       gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+      //     },
+      //   },
+      //   select: {
+      //     list: true,
+      //     vocabulary: true,
+      //   },
+      // });
+
       const lastListLearned = await this.prisma.vocabularyList.findFirst({
         where: {
           updatedAt: {
@@ -54,7 +66,49 @@ export class AppService {
         },
         select: {
           list: true,
-          vocabulary: true,
+        },
+      });
+
+      const lastListLearnedVocabulary =
+        await this.prisma.vocabularyList.findMany({
+          where: {
+            listId: lastListLearned?.list.id,
+          },
+          select: {
+            vocabulary: true,
+          },
+        });
+      const lastListKnownCount = await this.prisma.vocabularyProgress.count({
+        where: {
+          vocabularyId: {
+            in: lastListLearnedVocabulary.map((v) => v.vocabulary.id),
+          },
+          score: {
+            gte: 80,
+          },
+        },
+      });
+
+      const lastListLearningCount = await this.prisma.vocabularyProgress.count({
+        where: {
+          vocabularyId: {
+            in: lastListLearnedVocabulary.map((v) => v.vocabulary.id),
+          },
+          score: {
+            gte: 20,
+            lt: 80,
+          },
+        },
+      });
+
+      const lastListUnknownCount = await this.prisma.vocabularyProgress.count({
+        where: {
+          vocabularyId: {
+            in: lastListLearnedVocabulary.map((v) => v.vocabulary.id),
+          },
+          score: {
+            lt: 20,
+          },
         },
       });
 
@@ -64,6 +118,10 @@ export class AppService {
         learnVocabulary,
         unknownVocabulary,
         lastListLearned: lastListLearned?.list,
+
+        lastListKnown: lastListKnownCount,
+        lastListLearning: lastListLearningCount,
+        lastListUnknown: lastListUnknownCount,
       };
     } catch (error) {
       console.error('Error fetching lists:', error);

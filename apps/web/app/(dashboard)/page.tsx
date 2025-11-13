@@ -44,6 +44,9 @@ interface DashboardData {
   learnVocabulary: VocabularyItem[];
   unknownVocabulary: VocabularyItem[];
   lastListLearned: LastList | null;
+  lastListKnown: number;
+  lastListLearning: number;
+  lastListUnknown: number;
 }
 
 interface StatsProps {
@@ -204,19 +207,19 @@ function LastListLearned({ stats, data, router }: LastListLearnedProps) {
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-slate-600 mb-1">Appris</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {stats.mastered}
+                  {data.lastListKnown}
                 </p>
               </div>
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm text-slate-600 mb-1">En cours</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {stats.learning}
+                  {data.lastListLearning}
                 </p>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
                 <p className="text-sm text-slate-600 mb-1">À faire</p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {stats.toReview}
+                  {data.lastListUnknown}
                 </p>
               </div>
             </div>
