@@ -305,7 +305,7 @@ export default function CardsComponent({
   ]);
 
   return (
-    <div className="h-full flex items-center justify-center overflow-hidden p-2 sm:p-4 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
+    <div className="h-full flex items-center justify-center overflow-hidden p-2 sm:p-4 bg-gray-50 dark:bg-gray-900">
       <div className="w-full max-w-4xl h-full flex items-center justify-center relative">
         {!endOfList ? (
           <Card
@@ -345,13 +345,13 @@ export default function CardsComponent({
               onTouchEnd={handleTouchEnd}
             >
               <div
-                className="flex items-center justify-center h-full flip-card-front text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 p-8 bg-gradient-to-br from-white to-slate-50/50 rounded-xl"
+                className="flex items-center justify-center h-full flip-card-front text-xl sm:text-4xl md:text-5xl font-bold p-8 rounded-xl"
                 unselectable="on"
               >
                 {currentCard?.front}
               </div>
               <div
-                className="flex items-center justify-center h-full flip-card-back text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-700 p-8 bg-gradient-to-br from-blue-50 to-purple-50/50 rounded-xl"
+                className="flex items-center justify-center h-full flip-card-back text-xl sm:text-3xl md:text-4xl font-semibold p-8 rounded-xl"
                 unselectable="on"
               >
                 {currentCard?.back}
@@ -370,7 +370,7 @@ export default function CardsComponent({
             </CardFooter>
           </Card>
         ) : (
-          <Card className="w-full max-h-[700px] flex flex-col items-center justify-center p-12 text-center shadow-2xl border-2 border-slate-200/60 bg-gradient-to-br from-white via-blue-50/40 to-purple-50/40 backdrop-blur-sm">
+          <Card className="w-full max-h-[700px] flex flex-col items-center justify-center p-12 text-center shadow-2xl border-2 border-slate-200/60 bg-gray-50 dark:bg-gray-900 backdrop-blur-sm">
             <div className="mb-8 relative">
               <div className="w-24 h-24 bg-gradient-to-br from-green-400 via-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-xl animate-bounce">
                 <svg

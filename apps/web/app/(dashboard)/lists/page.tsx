@@ -6,6 +6,7 @@ import ShowWordsList from "@/components/Global/ShowVocabularyList";
 import { Button } from "@/components/ui/button";
 import { BACKEND_URL } from "@/lib/constants";
 import Link from "next/link";
+import { getSession } from "@/lib/session";
 
 interface List {
   id: number;
@@ -34,6 +35,17 @@ export default function Lists() {
     fetchLists();
   }, []);
 
+  const updateDefaultLists = async () => {
+    const session = await getSession();
+    await fetch(`${BACKEND_URL}/list/update-default`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
@@ -47,7 +59,12 @@ export default function Lists() {
               Gérez les listes de votre application
             </p>
           </div>
-          <AddModal />
+          <div className="grid grid-cols-1 items-center gap-2">
+            <AddModal />
+            <Button variant="outline" onClick={updateDefaultLists}>
+              Actualiser les listes par défaut
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -103,11 +120,13 @@ export default function Lists() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <Button asChild>
-                            <a href={`/cards/${list.id}`}>Cartes</a>
+                          <Button asChild variant="outline">
+                            <Link href={`/cards/${list.id}`}>Cartes</Link>
                           </Button>
-                          <Button asChild>
-                            <a href={`/cards/${list.id}`}>Apprendre</a>
+                          <Button asChild variant="outline">
+                            <Link href={`/cards/${list.id}/learn`}>
+                              Apprendre
+                            </Link>
                           </Button>
                         </div>
                       </td>

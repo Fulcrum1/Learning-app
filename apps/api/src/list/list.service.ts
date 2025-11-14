@@ -242,12 +242,8 @@ export class ListService {
     try {
       // Find or create Complete List
       let completeList = await this.prisma.lists.findFirst({
-        where: {
-          name: 'Complete List',
-          userId: userId,
-        },
+        where: { name: 'Complete List', userId: userId },
       });
-
       if (!completeList) {
         completeList = await this.prisma.lists.create({
           data: {
@@ -257,14 +253,9 @@ export class ListService {
           },
         });
       }
-
       let knowList = await this.prisma.lists.findFirst({
-        where: {
-          name: 'Known List',
-          userId: userId,
-        },
+        where: { name: 'Known List', userId: userId },
       });
-
       if (!knowList) {
         knowList = await this.prisma.lists.create({
           data: {
@@ -274,15 +265,9 @@ export class ListService {
           },
         });
       }
-
-      // Find or create Unknown List
       let unknownList = await this.prisma.lists.findFirst({
-        where: {
-          name: 'Unknown List',
-          userId: userId,
-        },
+        where: { name: 'Unknown List', userId: userId },
       });
-
       if (!unknownList) {
         unknownList = await this.prisma.lists.create({
           data: {
@@ -294,30 +279,46 @@ export class ListService {
       }
 
       const vocabularyProgress = await this.prisma.vocabularyProgress.findMany({
-        where: {
-          userId: userId,
-        },
+        where: { userId: userId },
       });
 
       for (const vocabulary of vocabularyProgress) {
-        if (vocabulary.score >= 80) {
-          await this.prisma.vocabularyList.create({
-            data: {
-              listId: knowList.id,
+        // Add to Known or Unknown List based on score
+        const targetList = vocabulary.score >= 80 ? knowList : unknownList;
+        await this.prisma.vocabularyList.upsert({
+          where: {
+            listId_vocabularyId: {
+              listId: targetList.id,
               vocabularyId: vocabulary.vocabularyId,
-              order: vocabulary.reviewNumber,
             },
-          });
-        } else if (vocabulary.score < 80) {
-          await this.prisma.vocabularyList.create({
-            data: {
-              listId: unknownList.id,
+          },
+          create: {
+            listId: targetList.id,
+            vocabularyId: vocabulary.vocabularyId,
+            order: vocabulary.reviewNumber,
+          },
+          update: {
+            order: vocabulary.reviewNumber,
+          },
+        });
+
+        // Add to Complete List
+        await this.prisma.vocabularyList.upsert({
+          where: {
+            listId_vocabularyId: {
+              listId: completeList.id,
               vocabularyId: vocabulary.vocabularyId,
-              order: vocabulary.reviewNumber,
             },
-          });
-        }
-        
+          },
+          create: {
+            listId: completeList.id,
+            vocabularyId: vocabulary.vocabularyId,
+            order: vocabulary.reviewNumber,
+          },
+          update: {
+            order: vocabulary.reviewNumber,
+          },
+        });
       }
     } catch (error) {
       throw error;

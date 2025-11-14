@@ -79,19 +79,21 @@ export class ListController {
     return this.listService.findVocabularyCategory();
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard)
+  @Get('update-default')
+  async updateDefaultList(@Req() req: Request & { user: User }) {
     try {
-      return await this.listService.findOne(id);
+      console.log(req.user);
+      return await this.listService.updateDefaultList(req.user?.id);
     } catch (error) {
       throw error;
     }
   }
-
-  @Get('update-default')
-  async updateDefaultList(@Req() req: Request & { user: User }) {
+  
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
     try {
-      return await this.listService.updateDefaultList(req.user?.id);
+      return await this.listService.findOne(id);
     } catch (error) {
       throw error;
     }

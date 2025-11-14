@@ -79,23 +79,23 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
     <div className="p-2">
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
-          <button className="group relative flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
+          <Button className="group relative flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
             <Languages className="w-4 h-4" />
             <span>Afficher les mots</span>
-          </button>
+          </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden border-0 shadow-2xl rounded-2xl">
+        <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden border-0 shadow-2xl rounded-2xl dark:bg-gray-800">
           <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8">
             <DialogHeader>
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg">
-                  <Languages className="w-7 h-7 text-white" />
+                <div className="p-3 backdrop-blur-sm rounded-xl shadow-lg">
+                  <Languages className="w-7 h-7 " />
                 </div>
                 <div>
-                  <DialogTitle className="text-3xl font-bold text-white mb-1">
+                  <DialogTitle className="text-3xl font-bold mb-1">
                     Vocabulaire
                   </DialogTitle>
-                  <p className="text-white/80 text-sm">
+                  <p className="text-sm">
                     {vocabulary
                       ? `${vocabulary.VocabularyList.length} mot${
                           vocabulary.VocabularyList.length > 1 ? "s" : ""
@@ -107,7 +107,7 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
             </DialogHeader>
           </div>
 
-          <div className="p-6 bg-gradient-to-br from-gray-50 to-white max-h-[65vh] overflow-y-auto">
+          <div className="p-6 max-h-[65vh] overflow-y-auto">
             {isLoading ? (
               <div className="flex flex-col justify-center items-center py-12">
                 <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-3" />
@@ -145,14 +145,14 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
                 {vocabulary.VocabularyList.map((element) => (
                   <div
                     key={element.vocabularyId}
-                    className="group relative bg-white p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-400 hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1"
+                    className="group relative p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-400 hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1"
                   >
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <BookOpen className="w-4 h-4 text-indigo-400" />
                     </div>
 
                     <div className="mb-3">
-                      <div className="text-xl font-bold text-gray-900 mb-1">
+                      <div className="text-xl font-bold mb-1">
                         {element.vocabulary.name}
                       </div>
                       <div className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md inline-block">
@@ -160,7 +160,7 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
                       </div>
                     </div>
                     <div className="pt-3 border-t border-gray-100">
-                      <div className="text-sm text-gray-600 font-medium">
+                      <div className="text-sm font-medium">
                         {element.vocabulary.translation}
                       </div>
                     </div>
@@ -172,15 +172,15 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
                 <div className="p-4 bg-gray-100 rounded-full mb-3">
                   <Languages className="w-8 h-8 text-gray-400" />
                 </div>
-                <p className="text-gray-500 font-medium">Aucun mot trouvé</p>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="font-medium">Aucun mot trouvé</p>
+                <p className="text-sm mt-1">
                   Cette catégorie ne contient pas encore de mots.
                 </p>
               </div>
             )}
           </div>
 
-          <DialogFooter className="bg-gray-100 border-t border-gray-200 p-5">
+          <DialogFooter className="border-t border-gray-200 p-5">
             <DialogClose asChild>
               <Button
                 type="button"

@@ -61,15 +61,15 @@ interface StatsProps {
 function Stats({ stats }: StatsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 order-2 lg:order-1">
-      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+      <Card className="shadow-lg hover:shadow-xl transition-all duration-300">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600 mb-1">Vocabulaire appris</p>
-              <p className="text-3xl font-bold text-slate-800">
-                {stats.mastered}
+              <p className="text-sm text-muted-foreground mb-1">
+                Vocabulaire appris
               </p>
-              <p className="text-xs text-green-600 mt-1 flex items-center">
+              <p className="text-3xl font-bold">{stats.mastered}</p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1 flex items-center">
                 <TrendingUp className="h-3 w-3 mr-1" />
                 {stats.totalWords > 0
                   ? Math.round((stats.mastered / stats.totalWords) * 100)
@@ -77,7 +77,7 @@ function Stats({ stats }: StatsProps) {
                 %
               </p>
             </div>
-            <div className="h-12 w-12 bg-green-500 rounded-xl flex items-center justify-center">
+            <div className="h-12 w-12 bg-green-500 dark:bg-green-600 rounded-xl flex items-center justify-center">
               <ShowWords type="mastered">
                 <CheckCircle2 className="h-6 w-6 text-white" />
               </ShowWords>
@@ -85,20 +85,18 @@ function Stats({ stats }: StatsProps) {
           </div>
         </CardContent>
       </Card>
-      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+      <Card className="shadow-lg hover:shadow-xl transition-all duration-300">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600 mb-1">En cours</p>
-              <p className="text-3xl font-bold text-slate-800">
-                {stats.learning}
-              </p>
-              <p className="text-xs text-blue-600 mt-1 flex items-center">
+              <p className="text-sm text-muted-foreground mb-1">En cours</p>
+              <p className="text-3xl font-bold">{stats.learning}</p>
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center">
                 <BookOpen className="h-3 w-3 mr-1" />
                 En apprentissage
               </p>
             </div>
-            <div className="h-12 w-12 bg-blue-500 rounded-xl flex items-center justify-center">
+            <div className="h-12 w-12 bg-blue-500 dark:bg-blue-600 rounded-xl flex items-center justify-center">
               <ShowWords type="learning">
                 <BookOpen className="h-6 w-6 text-white" />
               </ShowWords>
@@ -106,19 +104,17 @@ function Stats({ stats }: StatsProps) {
           </div>
         </CardContent>
       </Card>
-      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+      <Card className="shadow-lg hover:shadow-xl transition-all duration-300">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600 mb-1">À réviser</p>
-              <p className="text-3xl font-bold text-slate-800">
-                {stats.toReview}
-              </p>
-              <p className="text-xs text-orange-600 mt-1 flex items-center">
+              <p className="text-sm text-muted-foreground mb-1">À réviser</p>
+              <p className="text-3xl font-bold">{stats.toReview}</p>
+              <p className="text-xs text-orange-600 dark:text-orange-400 mt-1 flex items-center">
                 <Clock className="h-3 w-3 mr-1" />À apprendre
               </p>
             </div>
-            <div className="h-12 w-12 bg-orange-500 rounded-xl flex items-center justify-center">
+            <div className="h-12 w-12 bg-orange-500 dark:bg-orange-600 rounded-xl flex items-center justify-center">
               <ShowWords type="toReview">
                 <Clock className="h-6 w-6 text-white" />
               </ShowWords>
@@ -126,20 +122,18 @@ function Stats({ stats }: StatsProps) {
           </div>
         </CardContent>
       </Card>
-      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+      <Card className="shadow-lg hover:shadow-xl transition-all duration-300">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600 mb-1">Total</p>
-              <p className="text-3xl font-bold text-slate-800">
-                {stats.totalWords}
-              </p>
-              <p className="text-xs text-purple-600 mt-1 flex items-center">
+              <p className="text-sm text-muted-foreground mb-1">Total</p>
+              <p className="text-3xl font-bold">{stats.totalWords}</p>
+              <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 flex items-center">
                 <Star className="h-3 w-3 mr-1" />
                 mots au total
               </p>
             </div>
-            <div className="h-12 w-12 bg-purple-500 rounded-xl flex items-center justify-center">
+            <div className="h-12 w-12 bg-purple-500 dark:bg-purple-600 rounded-xl flex items-center justify-center">
               <ShowWords type="all">
                 <Target className="h-6 w-6 text-white" />
               </ShowWords>
@@ -165,26 +159,26 @@ function LastListLearned({ stats, data, router }: LastListLearnedProps) {
   return (
     <div className="lg:col-span-3 order-1 lg:order-2">
       {data.lastListLearned ? (
-        <Card className="border-0 shadow-lg">
+        <Card className="shadow-lg">
           <CardHeader className="border-b">
             <CardTitle className="flex items-center gap-2">
-              <Play className="h-5 w-5 text-blue-500" />
+              <Play className="h-5 w-5 text-blue-500 dark:text-blue-400" />
               Dernière liste étudiée
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="bg-blue-500 rounded-xl p-6 text-white">
+            <div className="bg-blue-500 dark:bg-blue-600 rounded-xl p-6 text-white">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-2xl font-bold mb-2">
                     {data.lastListLearned.name}
                   </h3>
                   {data.lastListLearned.description && (
-                    <p className="text-blue-100 mb-4">
+                    <p className="text-blue-100 dark:text-blue-50 mb-4">
                       {data.lastListLearned.description}
                     </p>
                   )}
-                  <p className="text-sm text-blue-100">
+                  <p className="text-sm text-blue-100 dark:text-blue-50">
                     Dernière modification:{" "}
                     {new Date(
                       data.lastListLearned.updatedAt
@@ -195,7 +189,7 @@ function LastListLearned({ stats, data, router }: LastListLearnedProps) {
                   onClick={() =>
                     router.push(`/cards/${data.lastListLearned?.id}`)
                   }
-                  className="bg-white text-blue-600 hover:bg-blue-50 shadow-lg"
+                  className="bg-white text-blue-600 hover:bg-blue-50 dark:bg-slate-900 dark:text-blue-400 dark:hover:bg-slate-800 shadow-lg"
                   size="lg"
                 >
                   <Play className="mr-2 h-5 w-5" />
@@ -204,21 +198,21 @@ function LastListLearned({ stats, data, router }: LastListLearnedProps) {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4 mt-6">
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <p className="text-sm text-slate-600 mb-1">Appris</p>
-                <p className="text-2xl font-bold text-green-600">
+              <div className="text-center p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
+                <p className="text-sm text-muted-foreground mb-1">Appris</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {data.lastListKnown}
                 </p>
               </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-slate-600 mb-1">En cours</p>
-                <p className="text-2xl font-bold text-blue-600">
+              <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                <p className="text-sm text-muted-foreground mb-1">En cours</p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {data.lastListLearning}
                 </p>
               </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <p className="text-sm text-slate-600 mb-1">À faire</p>
-                <p className="text-2xl font-bold text-orange-600">
+              <div className="text-center p-4 bg-orange-50 dark:bg-orange-950/30 rounded-lg">
+                <p className="text-sm text-muted-foreground mb-1">À faire</p>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                   {data.lastListUnknown}
                 </p>
               </div>
@@ -226,18 +220,16 @@ function LastListLearned({ stats, data, router }: LastListLearnedProps) {
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-0 shadow-lg">
+        <Card className="shadow-lg">
           <CardContent className="p-12 text-center">
-            <BookOpen className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-slate-700 mb-2">
-              Aucune liste étudiée
-            </h3>
-            <p className="text-slate-500 mb-4">
+            <BookOpen className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Aucune liste étudiée</h3>
+            <p className="text-muted-foreground mb-4">
               Commencez par créer ou réviser une liste
             </p>
             <Button
               onClick={() => router.push("/lists")}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
+              className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
             >
               Voir mes listes
             </Button>
@@ -277,16 +269,18 @@ export default function VocabularyDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500 dark:text-blue-400" />
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <p className="text-slate-600">Impossible de charger les données</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">
+          Impossible de charger les données
+        </p>
       </div>
     );
   }
@@ -299,18 +293,23 @@ export default function VocabularyDashboard() {
   };
 
   return (
-    <div className="min-h-screen p-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               Tableau de bord
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm sm:text-base">
               Suivez votre progression en vocabulaire
             </p>
           </div>
         </div>
+      </div>
+      <div className="p-4 sm:p-6 lg:p-8">
+              <div className="max-w-7xl mx-auto space-y-6">
+
         <div className="md:hidden">
           <LastListLearned stats={stats} data={data} router={router} />
         </div>
@@ -320,5 +319,7 @@ export default function VocabularyDashboard() {
         </div>
       </div>
     </div>
+    </div>
+
   );
 }
