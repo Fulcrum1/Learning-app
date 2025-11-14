@@ -305,7 +305,7 @@ export class CardService {
     }
   }
 
-  async resetCard(userId: string, body: { listId: string }) {
+  async resetCard(body: { listId: string }) {
     try {
       const vocabularyList = await this.prisma.vocabularyList.updateMany({
         where: { listId: body.listId },

@@ -14,19 +14,27 @@ export class VocabularyService {
     return vocabulary;
   }
 
-  // Create multiple vocabularies
-  async createMultiple(createVocabularyDto: CreateVocabularyDto[], userId: string) {
+  /*
+   * Create multiple vocabularies
+   * Add new vocabulary to Complete List and Unknown List (create if not exist)
+   */
+  async createMultiple(
+    createVocabularyDto: CreateVocabularyDto[],
+    userId: string,
+  ) {
     if (!Array.isArray(createVocabularyDto)) {
       throw new Error(
         'Le format des données est invalide : un tableau est attendu.',
       );
     }
+
+    // ----------------------- Add to Complete List and Unknown List -----------------------
     // Find or create Complete List
     let completeList = await this.prisma.lists.findFirst({
       where: {
         name: 'Complete List',
         userId: userId,
-      }
+      },
     });
 
     if (!completeList) {
@@ -56,6 +64,7 @@ export class VocabularyService {
         },
       });
     }
+    // ---------------------------------------------------------------------
 
     // Find last order of Complete List
     let lastOrderCompleteList = await this.prisma.vocabularyList.findFirst({

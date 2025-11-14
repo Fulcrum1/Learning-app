@@ -88,6 +88,15 @@ export class ListController {
     }
   }
 
+  @Get('update-default')
+  async updateDefaultList(@Req() req: Request & { user: User }) {
+    try {
+      return await this.listService.updateDefaultList(req.user?.id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateListDto: UpdateListDto) {
     try {

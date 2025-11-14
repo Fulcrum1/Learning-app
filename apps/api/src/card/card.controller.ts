@@ -6,6 +6,7 @@ import {
   UseGuards,
   Req,
   Put,
+  Post,
 } from '@nestjs/common';
 import { CardService } from './card.service';
 import { UpdateCardParamDto } from './dto/update-card-param.dto';
@@ -63,13 +64,12 @@ export class CardController {
     return this.cardService.rollbackProgress(req.user.id, body);
   }
 
-  // Reset the list of a user
-  @UseGuards(JwtAuthGuard)
-  @Put('reset-card')
+  // Reset a list 
+  @Post('reset-card')
   resetCard(
-    @Req() req: Request & { user: User },
     @Body() body: { listId: string },
   ) {
-    return this.cardService.resetCard(req.user.id, body);
+    console.log({body});
+    return this.cardService.resetCard(body);
   }
 }

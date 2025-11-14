@@ -5,7 +5,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Settings, ChevronLeft, X } from "lucide-react";
 import "./page.css";
 import { type CardParam } from "@/lib/type";
@@ -38,90 +38,74 @@ export default function CardsComponent({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
-  const [offsetX, setOffsetX] = useState(0);
   const [isClicking, setIsClicking] = useState(false);
   const [endOfList, setEndOfList] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const swipeThresholdTime = SWIPE_THRESHOLD_TIME;
 
-  // Handle keyboard events
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
-        e.preventDefault();
-        handleTurn(true);
-      } else if (e.code === "ArrowRight") {
-        handleVocabularyKnow();
-      } else if (e.code === "ArrowLeft") {
-        handleVocabularyUnknown();
-      }
-    };
-    if (!endOfList) {
-      window.addEventListener("keydown", handleKeyDown);
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-      };
-    }
-  }, [currentIndex]);
+  const currentCard = useMemo(
+    () => vocabulary[currentIndex],
+    [vocabulary, currentIndex]
+  );
+  const progress = useMemo(
+    () => ((currentIndex + 1) / vocabulary.length) * 100,
+    [currentIndex, vocabulary.length]
+  );
 
-  useEffect(() => {
-    if (endOfList) {
-      handleReset();
-    }
-  }, [endOfList]);
-
-  const handleReset = async () => {
-    const session = await getSession();
-    await fetch(`${BACKEND_URL}/card/reset-card`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      body: JSON.stringify({
-        listId: id,
-      }),
-    });
-  };
-
-  const handleTurn = (isKeyboard = false) => {
+  const handleTurn = useCallback((isKeyboard = false) => {
     if (cardRef.current) {
-      if (!cardRef.current.classList.contains("flipped")) {
-        cardRef.current.classList.add("flipped");
-      } else {
-        cardRef.current.classList.remove("flipped");
-      }
+      cardRef.current.classList.toggle("flipped");
       if (!isKeyboard) {
         const event = window.event as Event;
-        if (event) {
-          event.preventDefault();
-        }
+        event?.preventDefault();
       }
     }
-  };
+  }, []);
 
-  const handleUpdateProgress = async (
-    vocabularyId: string,
-    isKnown: boolean
-  ) => {
-    const session = await getSession();
-    await fetch(`${BACKEND_URL}/card/progress-card`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      body: JSON.stringify({
-        listId: id,
-        vocabularyId,
-        isKnown,
-      }),
-    });
-  };
+  const animateCardOut = useCallback(
+    (direction: "left" | "right", onComplete?: () => void) => {
+      if (cardRef.current) {
+        const distance =
+          direction === "right" ? window.innerWidth : -window.innerWidth;
+        cardRef.current.style.transition = `transform ${swipeThresholdTime}s ease-out, opacity ${swipeThresholdTime}s ease-out`;
+        cardRef.current.style.transform = `translateX(${distance}px) rotate(${direction === "right" ? 20 : -20}deg)`;
+        cardRef.current.style.opacity = "0";
+        cardRef.current.classList.remove("flipped");
+        setTimeout(() => {
+          if (cardRef.current) {
+            cardRef.current.style.transition = "none";
+            cardRef.current.style.transform = "translateX(0) rotate(0)";
+            cardRef.current.style.opacity = "1";
+            onComplete?.();
+          }
+        }, 500);
+      }
+    },
+    [swipeThresholdTime]
+  );
 
-  const handleVocabularyKnow = () => {
-    if (!vocabulary[currentIndex]?.id) return;
-    handleUpdateProgress(vocabulary[currentIndex]?.id, true);
+  const handleUpdateProgress = useCallback(
+    async (vocabularyId: string, isKnown: boolean) => {
+      const session = await getSession();
+      await fetch(`${BACKEND_URL}/card/progress-card`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+        body: JSON.stringify({
+          listId: id,
+          vocabularyId,
+          isKnown,
+        }),
+      });
+    },
+    [id]
+  );
+
+  const handleVocabularyKnow = useCallback(() => {
+    if (!currentCard?.id) return;
+    handleUpdateProgress(currentCard.id, true);
     animateCardOut("right", () => {
       setCurrentIndex((prevIndex) => {
         const newIndex = prevIndex + 1;
@@ -132,11 +116,11 @@ export default function CardsComponent({
         return newIndex;
       });
     });
-  };
+  }, [currentCard, handleUpdateProgress, animateCardOut, vocabulary.length]);
 
-  const handleVocabularyUnknown = () => {
-    if (!vocabulary[currentIndex]?.id) return;
-    handleUpdateProgress(vocabulary[currentIndex]?.id, false);
+  const handleVocabularyUnknown = useCallback(() => {
+    if (!currentCard?.id) return;
+    handleUpdateProgress(currentCard.id, false);
     animateCardOut("left", () => {
       setCurrentIndex((prevIndex) => {
         const newIndex = prevIndex + 1;
@@ -147,9 +131,9 @@ export default function CardsComponent({
         return newIndex;
       });
     });
-  };
+  }, [currentCard, handleUpdateProgress, animateCardOut, vocabulary.length]);
 
-  const handlePrevious = async () => {
+  const handlePrevious = useCallback(async () => {
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
       setCurrentIndex(newIndex);
@@ -169,56 +153,72 @@ export default function CardsComponent({
         }),
       });
     }
-  };
+  }, [currentIndex, id, vocabulary]);
 
-  const animateCardOut = (
-    direction: "left" | "right",
-    onComplete?: () => void
-  ) => {
-    if (cardRef.current) {
-      const distance =
-        direction === "right" ? window.innerWidth : -window.innerWidth;
-      cardRef.current.style.transition = `transform ${swipeThresholdTime}s ease-out, opacity ${swipeThresholdTime}s ease-out`;
-      cardRef.current.style.transform = `translateX(${distance}px) rotate(${direction === "right" ? 20 : -20}deg)`;
-      cardRef.current.style.opacity = "0";
-      cardRef.current.classList.remove("flipped");
-      setTimeout(() => {
-        if (cardRef.current) {
-          cardRef.current.style.transition = "none";
-          cardRef.current.style.transform = "translateX(0) rotate(0)";
-          cardRef.current.style.opacity = "1";
-          if (onComplete) onComplete();
-        }
-      }, 500);
+  const handleReset = useCallback(async () => {
+    const session = await getSession();
+    await fetch(`${BACKEND_URL}/card/reset-card`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      body: JSON.stringify({
+        listId: id,
+      }),
+    });
+  }, [id]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        handleTurn(true);
+      } else if (e.code === "ArrowRight") {
+        handleVocabularyKnow();
+      } else if (e.code === "ArrowLeft") {
+        handleVocabularyUnknown();
+      }
+    };
+    if (!endOfList) {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
     }
-  };
+  }, [endOfList, handleTurn, handleVocabularyKnow, handleVocabularyUnknown]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  useEffect(() => {
+    if (endOfList) {
+      handleReset();
+    }
+  }, [endOfList, handleReset]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(false);
     setIsClicking(true);
     setStartX(e.clientX);
     setCurrentX(e.clientX);
-  };
+  }, []);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (startX === 0) return;
-    const diffX = e.clientX - startX;
-    const absDiff = Math.abs(diffX);
-    if (absDiff > 5 && !isDragging) {
-      setIsDragging(true);
-    }
-    if (!isDragging) return;
-    setCurrentX(e.clientX);
-    setOffsetX(diffX);
-    if (cardRef.current) {
-      const rotation = diffX / 20;
-      const element = cardRef.current as HTMLElement;
-      element.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
-      element.style.transition = "none";
-    }
-  };
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (startX === 0) return;
+      const diffX = e.clientX - startX;
+      const absDiff = Math.abs(diffX);
+      if (absDiff > 5 && !isDragging) {
+        setIsDragging(true);
+      }
+      if (!isDragging && absDiff <= 5) return;
+      setCurrentX(e.clientX);
+      if (cardRef.current) {
+        const rotation = diffX / 20;
+        cardRef.current.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
+        cardRef.current.style.transition = "none";
+      }
+    },
+    [startX, isDragging]
+  );
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     const diff = currentX - startX;
     if (isDragging) {
       if (Math.abs(diff) > SWIPE_THRESHOLD_DISTANCE) {
@@ -228,47 +228,54 @@ export default function CardsComponent({
           handleVocabularyUnknown();
         }
       } else if (cardRef.current) {
-        const element = cardRef.current as HTMLElement;
-        element.style.transition = `transform ${swipeThresholdTime}s ease-out`;
-        element.style.transform = "translateX(0) rotate(0)";
+        cardRef.current.style.transition = `transform ${swipeThresholdTime}s ease-out`;
+        cardRef.current.style.transform = "translateX(0) rotate(0)";
       }
     } else if (isClicking) {
       handleTurn();
     }
     setIsClicking(false);
     setIsDragging(false);
-    setOffsetX(0);
     setStartX(0);
     setCurrentX(0);
-  };
+  }, [
+    currentX,
+    startX,
+    isDragging,
+    isClicking,
+    handleVocabularyKnow,
+    handleVocabularyUnknown,
+    handleTurn,
+    swipeThresholdTime,
+  ]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (!e.touches[0]) return;
     setIsDragging(false);
     setStartX(e.touches[0].clientX);
     setCurrentX(e.touches[0].clientX);
-  };
+  }, []);
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (startX === 0) return;
-    if (!e.touches[0]) return;
-    const diffX = e.touches[0].clientX - startX;
-    const absDiff = Math.abs(diffX);
-    if (absDiff > 5 && !isDragging) {
-      setIsDragging(true);
-    }
-    if (!isDragging) return;
-    setCurrentX(e.touches[0].clientX);
-    setOffsetX(diffX);
-    if (cardRef.current) {
-      const rotation = diffX / 20;
-      const element = cardRef.current as HTMLElement;
-      element.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
-      element.style.transition = "none";
-    }
-  };
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (startX === 0 || !e.touches[0]) return;
+      const diffX = e.touches[0].clientX - startX;
+      const absDiff = Math.abs(diffX);
+      if (absDiff > 5 && !isDragging) {
+        setIsDragging(true);
+      }
+      if (!isDragging && absDiff <= 5) return;
+      setCurrentX(e.touches[0].clientX);
+      if (cardRef.current) {
+        const rotation = diffX / 20;
+        cardRef.current.style.transform = `translateX(${diffX}px) rotate(${rotation}deg)`;
+        cardRef.current.style.transition = "none";
+      }
+    },
+    [startX, isDragging]
+  );
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     const diff = currentX - startX;
     if (isDragging) {
       if (Math.abs(diff) > SWIPE_THRESHOLD_DISTANCE) {
@@ -285,33 +292,38 @@ export default function CardsComponent({
       handleTurn();
     }
     setIsDragging(false);
-    setOffsetX(0);
     setStartX(0);
     setCurrentX(0);
-  };
+  }, [
+    currentX,
+    startX,
+    isDragging,
+    handleVocabularyKnow,
+    handleVocabularyUnknown,
+    handleTurn,
+    swipeThresholdTime,
+  ]);
 
   return (
-    <div className="h-full flex items-center justify-center overflow-hidden  p-4">
-      <div className="w-full max-w-2xl h-full flex items-center justify-center relative">
+    <div className="h-full flex items-center justify-center overflow-hidden p-2 sm:p-4 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
+      <div className="w-full max-w-4xl h-full flex items-center justify-center relative">
         {!endOfList ? (
           <Card
             ref={cardRef}
-            className="w-full max-h-[600px] flip-card hover:shadow-3xl transition-all duration-300"
+            className="w-full h-[85vh] max-h-[800px] flip-card hover:shadow-2xl transition-all duration-300 border-2 border-slate-200/60 backdrop-blur-sm"
             style={{ cursor: isDragging ? "grabbing" : "grab" }}
           >
-            <CardHeader className="border-b border-slate-200/50 bg-gradient-to-r from-white to-slate-50">
-              <div className="flex items-center justify-between gap-2">
+            <CardHeader className="border-b-2 py-4">
+              <div className="flex items-center justify-between gap-3">
                 <Close />
-                <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-32 bg-slate-200 rounded-full overflow-hidden">
+                <div className="flex items-center gap-3 flex-1 max-w-md">
+                  <div className="h-2 flex-1 bg-slate-200 rounded-full overflow-hidden shadow-inner">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
-                      style={{
-                        width: `${((currentIndex + 1) / vocabulary.length) * 100}%`,
-                      }}
+                      className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-500 ease-out shadow-lg"
+                      style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <span className="text-sm font-medium text-slate-600 min-w-[60px] text-right">
+                  <span className="text-sm font-semibold text-slate-700 min-w-[70px] text-right tabular-nums">
                     {currentIndex + 1} / {vocabulary.length}
                   </span>
                 </div>
@@ -323,7 +335,7 @@ export default function CardsComponent({
               </div>
             </CardHeader>
             <CardContent
-              className="flip-card-inner p-8 min-h-[300px]"
+              className="flip-card-inner p-8 sm:p-12 h-[calc(100%-140px)]"
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -333,39 +345,36 @@ export default function CardsComponent({
               onTouchEnd={handleTouchEnd}
             >
               <div
-                className="flex items-center justify-center m-0 p-8 flip-card-front text-3xl font-semibold text-slate-800"
+                className="flex items-center justify-center h-full flip-card-front text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 p-8 bg-gradient-to-br from-white to-slate-50/50 rounded-xl"
                 unselectable="on"
               >
-                {vocabulary[currentIndex]?.front}
+                {currentCard?.front}
               </div>
               <div
-                className="flex items-center justify-center m-0 p-8 flip-card-back text-2xl font-medium text-slate-700"
+                className="flex items-center justify-center h-full flip-card-back text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-700 p-8 bg-gradient-to-br from-blue-50 to-purple-50/50 rounded-xl"
                 unselectable="on"
               >
-                {vocabulary[currentIndex]?.back}
+                {currentCard?.back}
               </div>
             </CardContent>
-            <CardFooter className="flex-col gap-3 border-t border-slate-200/50 bg-gradient-to-r from-slate-50 to-white">
+            <CardFooter className="flex-col gap-3 border-t-2 border-slate-200 pt-4">
               {currentIndex > 0 && (
                 <button
                   onClick={handlePrevious}
-                  className="px-6 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all duration-200 flex items-center gap-2"
+                  className="px-6 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Retour
                 </button>
               )}
-              <p className="text-xs text-slate-400 text-center">
-                Glissez vers la gauche ou la droite
-              </p>
             </CardFooter>
           </Card>
         ) : (
-          <Card className="w-full max-h-[600px] flex flex-col items-center justify-center p-12 text-center shadow-2xl border-0 bg-gradient-to-br from-white to-slate-50">
-            <div className="mb-6 relative">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+          <Card className="w-full max-h-[700px] flex flex-col items-center justify-center p-12 text-center shadow-2xl border-2 border-slate-200/60 bg-gradient-to-br from-white via-blue-50/40 to-purple-50/40 backdrop-blur-sm">
+            <div className="mb-8 relative">
+              <div className="w-24 h-24 bg-gradient-to-br from-green-400 via-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-xl animate-bounce">
                 <svg
-                  className="w-10 h-10 text-white"
+                  className="w-12 h-12 text-white"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -373,34 +382,33 @@ export default function CardsComponent({
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
+                    strokeWidth={3}
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
               </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full animate-ping" />
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full animate-ping" />
+              <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-pink-400 rounded-full animate-pulse" />
             </div>
-            <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-              Félicitations !
-            </h2>
-            <p className="text-slate-600 mb-8 text-lg max-w-md">
+            <h2 className="text-5xl font-extrabold mb-4">Félicitations !</h2>
+            <p className="text-slate-600 mb-10 text-xl max-w-lg leading-relaxed">
               Vous avez terminé toutes les cartes de cette liste. Excellent
               travail ! 🎉
             </p>
             <div className="flex gap-4 flex-wrap justify-center">
               <Button
                 onClick={() => router.push(`/lists/${id}`)}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg font-semibold"
               >
-                <ChevronLeft className="mr-2 h-4 w-4" />
+                <ChevronLeft className="mr-2 h-5 w-5" />
                 Retour à la liste
               </Button>
               <Button
                 variant="outline"
                 onClick={() => window.location.reload()}
-                className="border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition-all duration-200"
+                className="border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition-all duration-300 px-8 py-6 text-lg font-semibold shadow-md hover:shadow-lg"
               >
-                <X className="mr-2 h-4 w-4" />
+                <X className="mr-2 h-5 w-5" />
                 Recommencer
               </Button>
             </div>

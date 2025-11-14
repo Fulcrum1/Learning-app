@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Plus, Languages, FileText } from "lucide-react";
 import { BACKEND_URL } from "@/lib/constants";
+import { getSession } from "@/lib/session";
 
 interface FormData {
   name: string;
@@ -204,6 +205,7 @@ export default function AddModal() {
     try {
       setIsLoading(true);
 
+      const session = await getSession();
       if (mode === "single") {
         const categoryNames = formData.categories || [];
 
@@ -211,6 +213,7 @@ export default function AddModal() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify({
             name: formData.name,
@@ -224,9 +227,9 @@ export default function AddModal() {
           const errorData = await response.json();
           throw new Error(errorData.error || `Erreur HTTP: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         setFormData({
           name: "",
           translation: "",
@@ -237,7 +240,7 @@ export default function AddModal() {
         alert("Vocabulaire ajouté avec succès !");
       } else {
         const parsedVocabularies = parserTexte(bulkText);
-        
+
         if (parsedVocabularies.length === 0) {
           throw new Error("Aucun vocabulaire valide à importer");
         }
@@ -246,10 +249,11 @@ export default function AddModal() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify(parsedVocabularies),
         });
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || `Erreur HTTP: ${response.status}`);

@@ -238,6 +238,92 @@ export class ListService {
     }
   }
 
+  async updateDefaultList(userId: string) {
+    try {
+      // Find or create Complete List
+      let completeList = await this.prisma.lists.findFirst({
+        where: {
+          name: 'Complete List',
+          userId: userId,
+        },
+      });
+
+      if (!completeList) {
+        completeList = await this.prisma.lists.create({
+          data: {
+            name: 'Complete List',
+            description: 'Liste complète',
+            userId: userId,
+          },
+        });
+      }
+
+      let knowList = await this.prisma.lists.findFirst({
+        where: {
+          name: 'Known List',
+          userId: userId,
+        },
+      });
+
+      if (!knowList) {
+        knowList = await this.prisma.lists.create({
+          data: {
+            name: 'Known List',
+            description: 'Liste connue',
+            userId: userId,
+          },
+        });
+      }
+
+      // Find or create Unknown List
+      let unknownList = await this.prisma.lists.findFirst({
+        where: {
+          name: 'Unknown List',
+          userId: userId,
+        },
+      });
+
+      if (!unknownList) {
+        unknownList = await this.prisma.lists.create({
+          data: {
+            name: 'Unknown List',
+            description: 'Liste inconnue',
+            userId: userId,
+          },
+        });
+      }
+
+      const vocabularyProgress = await this.prisma.vocabularyProgress.findMany({
+        where: {
+          userId: userId,
+        },
+      });
+
+      for (const vocabulary of vocabularyProgress) {
+        if (vocabulary.score >= 80) {
+          await this.prisma.vocabularyList.create({
+            data: {
+              listId: knowList.id,
+              vocabularyId: vocabulary.vocabularyId,
+              order: vocabulary.reviewNumber,
+            },
+          });
+        } else if (vocabulary.score < 80) {
+          await this.prisma.vocabularyList.create({
+            data: {
+              listId: unknownList.id,
+              vocabularyId: vocabulary.vocabularyId,
+              order: vocabulary.reviewNumber,
+            },
+          });
+        }
+        
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async update(id: string, updateListDto: UpdateListDto) {
     const { name, description, vocabulary = [] } = updateListDto;
     try {
