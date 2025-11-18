@@ -26,7 +26,7 @@ export default function CategoryModal({
 
   return (
     <div>
-      <div className="bg-gray-50 p-3 rounded-lg">
+      <div className="p-3 rounded-lg">
         <div className="text-sm text-gray-600">
           {selectedCategories.length} catégorie(s) sélectionnée(s) •
           {selectedCategories.reduce((total, cat) => {

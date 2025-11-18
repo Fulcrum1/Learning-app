@@ -155,20 +155,6 @@ export default function CardsComponent({
     }
   }, [currentIndex, id, vocabulary]);
 
-  const handleReset = useCallback(async () => {
-    const session = await getSession();
-    await fetch(`${BACKEND_URL}/card/reset-card`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      body: JSON.stringify({
-        listId: id,
-      }),
-    });
-  }, [id]);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === "Space") {
@@ -185,12 +171,6 @@ export default function CardsComponent({
       return () => window.removeEventListener("keydown", handleKeyDown);
     }
   }, [endOfList, handleTurn, handleVocabularyKnow, handleVocabularyUnknown]);
-
-  useEffect(() => {
-    if (endOfList) {
-      handleReset();
-    }
-  }, [endOfList, handleReset]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(false);

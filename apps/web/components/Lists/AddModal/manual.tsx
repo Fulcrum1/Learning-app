@@ -74,7 +74,7 @@ export default function ManualModal({
 
   return (
     <div className="max-w-5xl">
-      <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+      <div className="p-4 rounded-lg space-y-3">
         <div className="flex gap-3">
           <div className="flex-1 relative">
             <Search
@@ -115,7 +115,7 @@ export default function ManualModal({
           </Select>
         </div>
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm ">
             {filteredVocabulary.length} mot(s) affiché(s) •{" "}
             {selectedVocabulary.length} sélectionné(s)
           </div>
@@ -143,10 +143,10 @@ export default function ManualModal({
           </div>
         </div>
       </div>
-      <div className="h-[350px] overflow-y-auto border border-gray-200 rounded-lg">
+      <div className="h-[350px] overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
         {filteredVocabulary.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <Search size={48} className="mx-auto mb-3 text-gray-300" />
+          <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <Search size={48} className="mx-auto mb-3 text-gray-300 dark:text-gray-600" />
             <p>Aucun mot trouvé</p>
           </div>
         ) : (
@@ -157,28 +157,28 @@ export default function ManualModal({
                 onClick={() => toggleWordSelection(vocabulary.id)}
                 className={`relative p-2 rounded-lg border-2 cursor-pointer transition-all ${
                   selectedVocabulary.includes(vocabulary.id)
-                    ? "border-purple-500 bg-purple-50"
-                    : "border-gray-200 hover:border-purple-300 hover:bg-gray-50"
+                    ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30"
+                    : "border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                 }`}
               >
                 {selectedVocabulary.includes(vocabulary.id) && (
-                  <div className="absolute top-1 right-1 bg-purple-600 text-white rounded-full p-0.5">
-                    <Check size={10} />
+                  <div className="absolute top-1 right-1 bg-purple-600 rounded-full p-0.5">
+                    <Check size={10} className="text-white" />
                   </div>
                 )}
-                <div className="text-lg font-bold">
+                <div className="text-lg font-bold dark:text-white">
                   {vocabulary.translation}
                 </div>
                 {vocabulary.pronunciation && (
-                  <div className="text-xs text-gray-600 truncate">
+                  <div className="text-xs truncate dark:text-gray-400">
                     {vocabulary.pronunciation}
                   </div>
                 )}
-                <div className="text-sm text-gray-800 truncate">
+                <div className="text-sm truncate dark:text-gray-300">
                   {vocabulary.name}
                 </div>
                 {vocabulary.categories && vocabulary.categories.length > 0 && (
-                  <div className="text-xs text-purple-600 mt-1 font-medium truncate">
+                  <div className="text-xs text-purple-600 dark:text-purple-400 mt-1 font-medium truncate">
                     {vocabulary.categories
                       .map((category) => category.name)
                       .join(", ")}

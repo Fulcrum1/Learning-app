@@ -9,10 +9,10 @@ interface RandomModalProps {
   onCountChange: (count: number) => void;
 }
 
-export default function RandomModal({ 
-  randomCount, 
+export default function RandomModal({
+  randomCount,
   maxRandomCount,
-  onCountChange 
+  onCountChange,
 }: RandomModalProps) {
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
@@ -23,8 +23,11 @@ export default function RandomModal({
 
   return (
     <div className="space-y-4">
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border border-purple-200">
-        <Label htmlFor="randomCount" className="text-sm font-semibold text-gray-700 mb-2 block">
+      <div className="p-6 rounded-lg border ">
+        <Label
+          htmlFor="randomCount"
+          className="text-sm font-semibold text-gray-700 mb-2 block"
+        >
           Nombre de mots aléatoires
         </Label>
         <Input
