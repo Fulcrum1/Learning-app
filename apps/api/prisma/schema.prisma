@@ -42,7 +42,7 @@ model Lists {
   updatedAt      DateTime         @updatedAt
   user           User             @relation(fields: [userId], references: [id])
   userId         String
-  VocabularyList VocabularyList[]
+  vocabularyItems VocabularyList[] @relation("ListToVocabulary")
 }
 
 model Categories {
@@ -99,7 +99,7 @@ model VocabularyList {
   id           String     @id @default(cuid())
   vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id])
   vocabularyId String
-  list         Lists      @relation(fields: [listId], references: [id])
+  list         Lists      @relation("ListToVocabulary", fields: [listId], references: [id], onDelete: Cascade)
   listId       String
   order        Int
   review       Boolean    @default(false)

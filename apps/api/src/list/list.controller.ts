@@ -66,6 +66,7 @@ export class ListController {
     @Req() req: Request & { user: User },
     @Body() createListDto: CreateListDto,
   ) {
+    console.log({createListDto});
     return this.createListWithUser(req, createListDto);
   }
 
