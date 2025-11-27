@@ -33,14 +33,14 @@ type VocabularyList = {
   id: string;
   name: string;
   description: string;
-  VocabularyList: VocabularyInList[];
+  vocabularyItems: VocabularyInList[];
   user: {
     id: string;
     name: string;
     email: string;
   };
   _count: {
-    VocabularyList: number;
+    vocabularyItems: number;
   };
 };
 
@@ -97,9 +97,9 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
                   </DialogTitle>
                   <p className="text-sm">
                     {vocabulary
-                      ? `${vocabulary.VocabularyList.length} mot${
-                          vocabulary.VocabularyList.length > 1 ? "s" : ""
-                        } disponible${vocabulary.VocabularyList.length > 1 ? "s" : ""}`
+                      ? `${vocabulary.vocabularyItems.length} mot${
+                          vocabulary.vocabularyItems.length > 1 ? "s" : ""
+                        } disponible${vocabulary.vocabularyItems.length > 1 ? "s" : ""}`
                       : "Chargement..."}
                   </p>
                 </div>
@@ -140,9 +140,9 @@ export default function ShowWords({ type, id }: { type: string; id: string }) {
                   Réessayer
                 </Button>
               </div>
-            ) : vocabulary && vocabulary.VocabularyList.length > 0 ? (
+            ) : vocabulary && vocabulary.vocabularyItems.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {vocabulary.VocabularyList.map((element) => (
+                {vocabulary.vocabularyItems.map((element) => (
                   <div
                     key={element.vocabularyId}
                     className="group relative p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-400 hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1"

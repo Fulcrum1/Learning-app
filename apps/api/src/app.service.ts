@@ -46,18 +46,6 @@ export class AppService {
         },
       });
 
-      // const lastListLearned = await this.prisma.vocabularyList.findMany({
-      //   where: {
-      //     updatedAt: {
-      //       gte: new Date(new Date().setDate(new Date().getDate() - 7)),
-      //     },
-      //   },
-      //   select: {
-      //     list: true,
-      //     vocabulary: true,
-      //   },
-      // });
-
       const lastListLearned = await this.prisma.vocabularyList.findFirst({
         where: {
           updatedAt: {
