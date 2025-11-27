@@ -383,22 +383,35 @@ export class ListService {
 
   async remove(id: string) {
     try {
+      // First, verify the list exists
       const list = await this.prisma.lists.findUnique({
         where: { id },
+        include: {
+          vocabularyItems: true, // or whatever the relation name is
+        },
       });
+
       if (!list) {
         throw new NotFoundException(`List with ID ${id} not found`);
       }
-      await this.prisma.lists.delete({
-        where: { id },
+
+      // Use a transaction to delete vocabulary items first, then the list
+      const result = await this.prisma.$transaction(async (tx) => {
+        // Delete all vocabulary items associated with this list
+        await tx.vocabularyList.deleteMany({
+          where: { listId: id },
+        });
+
+        // Now delete the list itself
+        return await tx.lists.delete({
+          where: { id },
+        });
       });
-      return { message: `List with ID ${id} has been deleted` };
+
+      return result;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
       console.error(`Error deleting list with ID ${id}:`, error);
-      throw new Error('Failed to delete list');
+      throw new Error(`Failed to delete list: ${error.message}`);
     }
   }
 }
