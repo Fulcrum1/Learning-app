@@ -106,14 +106,14 @@ export class ListService {
               email: true,
             },
           },
-          VocabularyList: {
+          vocabularyItems: {
             include: {
               vocabulary: true,
             },
           },
           _count: {
             select: {
-              VocabularyList: true,
+              vocabularyItems: true,
             },
           },
         },
@@ -210,7 +210,7 @@ export class ListService {
               email: true,
             },
           },
-          VocabularyList: {
+          vocabularyItems: {
             include: {
               vocabulary: true,
             },
@@ -220,7 +220,7 @@ export class ListService {
           },
           _count: {
             select: {
-              VocabularyList: true,
+              vocabularyItems: true,
             },
           },
         },
@@ -362,7 +362,7 @@ export class ListService {
               email: true,
             },
           },
-          VocabularyList: {
+          vocabularyItems: {
             include: {
               vocabulary: true,
             },

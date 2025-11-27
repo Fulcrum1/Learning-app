@@ -53,20 +53,6 @@ model Categories {
   VocabularyToCategories VocabularyToCategories[]
 }
 
-// model VocabularyProgress {
-//   id           String     @id @default(cuid())
-//   score        Int        @default(0)
-//   lastReview   DateTime?
-//   reviewNumber Int        @default(0)
-//   user         User       @relation(fields: [userId], references: [id])
-//   userId       String
-//   vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id])
-//   vocabularyId String
-//   createdAt    DateTime   @default(now())
-//   updatedAt    DateTime   @updatedAt
-
-//   @@unique([userId, vocabularyId])
-// }
 model VocabularyProgress {
   id           String                      @id @default(cuid())
   score        Int                         @default(0)
