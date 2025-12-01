@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  Put,
   UseGuards,
   Query,
 } from '@nestjs/common';
@@ -38,7 +39,7 @@ export class ListController {
       ...createListDto,
       userId,
     };
-    
+
     return this.listService.create(fullDto);
   }
 
@@ -66,8 +67,13 @@ export class ListController {
     @Req() req: Request & { user: User },
     @Body() createListDto: CreateListDto,
   ) {
-    console.log({createListDto});
     return this.createListWithUser(req, createListDto);
+  }
+
+  @Patch(':id')
+  async updateList(@Param('id') id: string, @Body() updateListDto: UpdateListDto) {
+    const { itemsToDelete, ...listData } = updateListDto;
+    return this.listService.updateList(id, listData, itemsToDelete);
   }
 
   @Get()
@@ -90,7 +96,7 @@ export class ListController {
       throw error;
     }
   }
-  
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {

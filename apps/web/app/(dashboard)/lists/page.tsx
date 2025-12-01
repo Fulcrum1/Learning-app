@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BACKEND_URL } from "@/lib/constants";
 import Link from "next/link";
 import { getSession } from "@/lib/session";
+import UpdateModal from "@/components/Lists/UpdateModal";
 
 interface List {
   id: number;
@@ -44,17 +45,6 @@ export default function Lists() {
         Authorization: `Bearer ${session?.accessToken}`,
       },
     });
-  };
-
-  const handleEdit = async (id: number) => {
-    // const session = await getSession();
-    // await fetch(`${BACKEND_URL}/list/${id}`, {
-    //   method: "GET",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${session?.accessToken}`,
-    //   },
-    // });
   };
 
   const handleDelete = async (id: number) => {
@@ -154,10 +144,11 @@ export default function Lists() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <button onClick={() => handleEdit(list.id)} className="px-3 py-1 text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
-                            Modifier
-                          </button>
-                          <button onClick={() => handleDelete(list.id)} className="px-3 py-1 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium">
+                          <UpdateModal idList={list.id.toString()} />
+                          <button
+                            onClick={() => handleDelete(list.id)}
+                            className="px-3 py-1 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                          >
                             Supprimer
                           </button>
                         </div>

@@ -124,37 +124,100 @@ export class ListService {
     }
   }
 
-  // async findVocabularyCategory() {
-  //   try {
-  //     const [vocabulary, categories] = await Promise.all([
-  //       this.prisma.vocabulary.findMany({
-  //         include: {
-  //           VocabularyToCategories: {
-  //             include: {
-  //               category: true,
-  //             },
-  //           },
-  //         },
-  //       }),
-  //       this.prisma.categories.findMany({
-  //         include: {
-  //           _count: {
-  //             select: { VocabularyToCategories: true },
-  //           },
-  //           VocabularyToCategories: {
-  //             include: {
-  //               vocabulary: true,
-  //             },
-  //           },
-  //         },
-  //       }),
-  //     ]);
-  //     return { vocabulary, categories };
-  //   } catch (error) {
-  //     console.error('Error fetching vocabulary and categories:', error);
-  //     throw new Error('Failed to fetch vocabulary and categories');
-  //   }
-  // }
+  async updateList(
+    id: string,
+    updateListDto: UpdateListDto,
+    itemsToDelete?: string[],
+  ) {
+    const { name, description, vocabulary = [] } = updateListDto;
+
+    try {
+      // Vérifier que la liste existe
+      const existingList = await this.prisma.lists.findUnique({
+        where: { id },
+        include: {
+          vocabularyItems: true,
+        },
+      });
+
+      if (!existingList) {
+        throw new NotFoundException(`List with ID ${id} not found`);
+      }
+
+      // Utiliser une transaction pour garantir la cohérence des données
+      return await this.prisma.$transaction(async (tx) => {
+        // 1. Supprimer les items spécifiquement marqués pour suppression
+        if (itemsToDelete && itemsToDelete.length > 0) {
+          await tx.vocabularyList.deleteMany({
+            where: {
+              id: { in: itemsToDelete },
+              listId: id,
+            },
+          });
+        }
+
+        // 2. Si un nouveau tableau de vocabulaire est fourni, réorganiser complètement
+        if (vocabulary.length > 0) {
+          // Récupérer les items existants qui ne sont pas à supprimer
+          const remainingItems = existingList.vocabularyItems.filter(
+            (item) => !itemsToDelete?.includes(item.id),
+          );
+
+          // Supprimer tous les items de vocabulaire existants
+          await tx.vocabularyList.deleteMany({
+            where: { listId: id },
+          });
+
+          // Recréer avec le nouvel ordre
+          await tx.vocabularyList.createMany({
+            data: vocabulary.map((vocabularyId, index) => ({
+              listId: id,
+              vocabularyId,
+              order: index,
+            })),
+          });
+        }
+
+        // 3. Mettre à jour les informations de la liste
+        return await tx.lists.update({
+          where: { id },
+          data: {
+            ...(name && { name }),
+            ...(description !== undefined && { description }),
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+            vocabularyItems: {
+              include: {
+                vocabulary: true,
+              },
+              orderBy: {
+                order: 'asc',
+              },
+            },
+            _count: {
+              select: {
+                vocabularyItems: true,
+              },
+            },
+          },
+        });
+      });
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error(`Error updating list with ID ${id}:`, error);
+      throw new Error('Failed to update list: ' + error.message);
+    }
+  }
+
   async findVocabularyCategory() {
     try {
       const [vocabulary, categories] = await Promise.all([
