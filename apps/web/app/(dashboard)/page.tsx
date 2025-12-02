@@ -16,6 +16,7 @@ import { BACKEND_URL } from "@/lib/constants";
 import { getSession } from "@/lib/session";
 import { useRouter } from "next/navigation";
 import ShowWords from "@/components/Global/ShowVocabularyBlock";
+import { apiRequest } from "@/lib/api-request";
 
 interface Vocabulary {
   id: string;
@@ -252,12 +253,13 @@ export default function VocabularyDashboard() {
   const fetchDashboardData = async () => {
     try {
       const session = await getSession();
-      const response = await fetch(`${BACKEND_URL}/dashboard`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      });
+      // const response = await fetch(`${BACKEND_URL}/dashboard`, {
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${session?.accessToken}`,
+      //   },
+      // });
+      const response = await apiRequest.get(`${BACKEND_URL}/dashboard`);
       const result = await response.json();
       setData(result);
     } catch (error) {
@@ -308,18 +310,16 @@ export default function VocabularyDashboard() {
         </div>
       </div>
       <div className="p-4 sm:p-6 lg:p-8">
-              <div className="max-w-7xl mx-auto space-y-6">
-
-        <div className="md:hidden">
-          <LastListLearned stats={stats} data={data} router={router} />
-        </div>
-        <Stats stats={stats} />
-        <div className="hidden md:block">
-          <LastListLearned stats={stats} data={data} router={router} />
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="md:hidden">
+            <LastListLearned stats={stats} data={data} router={router} />
+          </div>
+          <Stats stats={stats} />
+          <div className="hidden md:block">
+            <LastListLearned stats={stats} data={data} router={router} />
+          </div>
         </div>
       </div>
     </div>
-    </div>
-
   );
 }

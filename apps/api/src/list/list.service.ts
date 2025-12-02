@@ -223,7 +223,7 @@ export class ListService {
       const [vocabulary, categories] = await Promise.all([
         this.prisma.vocabulary.findMany({
           include: {
-            VocabularyToCategories: {
+            vocabularyToCategories: {
               include: {
                 category: true,
               },
@@ -233,9 +233,9 @@ export class ListService {
         this.prisma.categories.findMany({
           include: {
             _count: {
-              select: { VocabularyToCategories: true },
+              select: { vocabularyToCategories: true },
             },
-            VocabularyToCategories: {
+            vocabularyToCategories: {
               include: {
                 vocabulary: true,
               },
@@ -247,11 +247,11 @@ export class ListService {
       // Transformation des catégories
       const transformedCategories = categories.map((category) => ({
         ...category,
-        vocabulary: category.VocabularyToCategories.map(
+        vocabulary: category.vocabularyToCategories.map(
           (vtc) => vtc.vocabulary,
         ),
         // On supprime la clé VocabularyToCategories si elle n'est plus utile
-        VocabularyToCategories: undefined,
+        vocabularyToCategories: undefined,
       }));
 
       return { vocabulary, categories: transformedCategories };

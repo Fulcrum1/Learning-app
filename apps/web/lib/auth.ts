@@ -14,8 +14,9 @@ export const register = async (
     email: formData.get("email"),
     password: formData.get("password"),
     // confirmPassword: formData.get("confirmPassword"),
+    language: formData.get("language"),
   });
-
+  console.log({validatedData});
   if (!validatedData.success) {
     return {
       error: validatedData.error.flatten().fieldErrors,
@@ -33,6 +34,7 @@ export const register = async (
   if (response.ok) {
     redirect("/login");
   } else {
+    console.log(response);
     return {
       message:
         response.status === 409
@@ -57,7 +59,7 @@ export const login = async (
     };
   }
 
-    const response = await fetch(`${BACKEND_URL}/auth/login`, {
+  const response = await fetch(`${BACKEND_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -76,7 +78,7 @@ export const login = async (
       },
       accessToken: result.accessToken,
     });
-    
+
     redirect("/");
   } else {
     return {

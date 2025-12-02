@@ -1,10 +1,44 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { register } from "../../../lib/auth";
+import { BACKEND_URL } from "../../../lib/constants";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface Language {
+  id: string;
+  name: string;
+}
 
 const RegisterForm = () => {
   const [state, formAction, isPending] = useActionState(register, undefined);
+  const [language, setLanguage] = useState<Language[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+
+  useEffect(() => {
+    const getLanguage = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/language`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        setLanguage(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getLanguage();
+  }, [state]);
 
   return (
     <div>
@@ -25,7 +59,6 @@ const RegisterForm = () => {
             type="text"
             className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
             placeholder="Jean Dupont"
-            // required
           />
         </div>
         {state?.error && (
@@ -44,7 +77,6 @@ const RegisterForm = () => {
             type="email"
             className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
             placeholder="votre@email.com"
-            // required
           />
         </div>
         {state?.error && (
@@ -63,7 +95,6 @@ const RegisterForm = () => {
             type="password"
             className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
             placeholder="••••••••"
-            // required
           />
         </div>
         {state?.error && (
@@ -71,25 +102,30 @@ const RegisterForm = () => {
         )}
         <div>
           <label
-            htmlFor="confirmPassword"
+            htmlFor="language"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            Confirmer le mot de passe
+            Langue
           </label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
-            placeholder="••••••••"
-            // required
-          />
+          <Select
+            name="language"
+            value={selectedLanguage}
+            onValueChange={setSelectedLanguage}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Sélectionner une langue" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {language.map((lang) => (
+                  <SelectItem key={lang.id} value={lang.id}>
+                    {lang.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
-        {/* {state?.error && (
-          <p className="text-red-500 text-sm">
-            {state?.error?.confirmPassword}
-          </p>
-        )} */}
         <button
           type="submit"
           disabled={isPending}

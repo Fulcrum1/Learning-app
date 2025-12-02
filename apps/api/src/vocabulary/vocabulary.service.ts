@@ -7,9 +7,20 @@ import { PrismaService } from '../prisma/prisma.service';
 export class VocabularyService {
   constructor(private prisma: PrismaService) {}
 
-  createSingle(createVocabularyDto: CreateVocabularyDto) {
-    const vocabulary = this.prisma.vocabulary.create({
-      data: createVocabularyDto,
+  async createSingle(createVocabularyDto: CreateVocabularyDto) {
+    const defaultLanguage = await this.prisma.language.findFirst();
+    if (!defaultLanguage) {
+      throw new Error('No default language configured');
+    }
+
+    const vocabulary = await this.prisma.vocabulary.create({
+      data: {
+        name: createVocabularyDto.name,
+        translation: createVocabularyDto.translation,
+        pronunciation: createVocabularyDto.pronunciation || null,
+        sourceLanguageId: defaultLanguage.id,
+        targetLanguageId: defaultLanguage.id,
+      },
     });
     return vocabulary;
   }
@@ -106,12 +117,19 @@ export class VocabularyService {
       );
 
       try {
+        const defaultLanguage = await this.prisma.language.findFirst();
+        if (!defaultLanguage) {
+          throw new Error('No default language configured');
+        }
+
         // Create new vocabulary
         const newVocabulary = await this.prisma.vocabulary.create({
           data: {
             name: vocabularyData.name,
             translation: vocabularyData.translation,
             pronunciation: vocabularyData.pronunciation || null,
+            sourceLanguageId: defaultLanguage.id,
+            targetLanguageId: defaultLanguage.id,
           },
         });
 

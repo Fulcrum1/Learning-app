@@ -25,6 +25,7 @@
   "dependencies": {
     "@nestjs/config": "^4.0.2",
     "@nestjs/jwt": "^11.0.1",
+    "country-flag-icons": "^1.6.4",
     "passport-jwt": "^4.0.1",
     "react-ui-animate": "^5.2.0"
   }

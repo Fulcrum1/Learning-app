@@ -7,11 +7,9 @@ import {
   LogOut,
   BookOpen,
   FolderOpen,
-  Link,
 } from "lucide-react";
-import { SidebarTrigger } from "../ui/sidebar";
 import NavButton from "./NavButton";
-import { Button } from "../ui/button";
+import LanguageButton from "./LanguageButton";
 
 interface AppSidebarProps {
   user?: string;
@@ -19,7 +17,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ user }: AppSidebarProps) {
   const [activeItem, setActiveItem] = useState("dashboard");
-  
+
   const userInitials = user
     ?.split(" ")
     .map((name) => name[0])
@@ -43,17 +41,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
       label: "Gestion des données",
       items: [
         {
-          id: "library",
-          label: "Bibliothèque",
+          id: "vocabulary",
+          label: "Vocabulaire",
           icon: BookOpen,
-          items: [
-            {
-              id: "vocabulary",
-              label: "Vocabulaire",
-              icon: BookOpen,
-              href: "/library/vocabulary",
-            },
-          ],
+          href: "/library/vocabulary",
         },
         {
           id: "categories",
@@ -61,6 +52,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           icon: FolderOpen,
           href: "/categories",
         },
+        { id: "languages", label: "Langues", icon: Users, href: "/languages" },
         { id: "users", label: "Utilisateurs", icon: Users, href: "/users" },
       ],
     },
@@ -73,7 +65,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <h1 className="text-2xl font-bold bg-clip-text text-transparent text-white">
           Learning App
         </h1>
-        <SidebarTrigger />
+        <LanguageButton />
+        {/* <SidebarTrigger /> */}
       </div>
       {/* Navigation with enhanced visuals */}
       <div className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar">
@@ -98,7 +91,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                     label={item.label}
                     icon={Icon}
                     href={item.href}
-                    items={item.items}
+                    // items={item.items}
                     onClick={() => setActiveItem(item.id)}
                   />
                 );

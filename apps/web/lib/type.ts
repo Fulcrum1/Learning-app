@@ -17,6 +17,7 @@ export const registerFormSchema = z.object({
   password: z
     .string()
     .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+  language: z.string().min(1, "Veuillez selectionner une langue"),
 });
 
 export const loginFormSchema = z.object({
