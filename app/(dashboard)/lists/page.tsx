@@ -1,6 +1,5 @@
 "use client";
 
-import AddModal from "@/components/Lists/AddModal";
 import { useState, useEffect } from "react";
 import ShowWordsList from "@/components/Global/ShowWordsList";
 import { Button } from "@/components/ui/button";

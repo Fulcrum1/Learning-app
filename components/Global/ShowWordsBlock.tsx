@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { BookOpen, CheckCircle2, Clock } from "lucide-react";
 import { useState } from "react";
-import { DashboardData, Words } from "@/lib/type";
+import { DashboardData, Word, Words } from "@/lib/type";
 type Category = "all" | "mastered" | "learning" | "toReview";
 
 const CATEGORIES: {
@@ -60,7 +60,7 @@ export default function ShowWords({
 
   const allWords = [...words.mastered, ...words.learning, ...words.toReview];
 
-  const getFilteredWords = (): Words[] => {
+  const getFilteredWords = (): Word[] => {
     switch (selectedCategory) {
       case "mastered":
         return words.mastered;

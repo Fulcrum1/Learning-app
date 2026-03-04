@@ -84,10 +84,10 @@ export interface LastList {
 
 export interface DashboardData {
   totalWords: number;
-  completed: Words[];
-  mastered: Words[];
-  learning: Words[];
-  toReview: Words[];
+  completed: Word[];
+  mastered: Word[];
+  learning: Word[];
+  toReview: Word[];
   lastListLearned: LastList;
 }
 
