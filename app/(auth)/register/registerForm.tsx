@@ -1,44 +1,9 @@
 "use client";
-import { useActionState, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState } from "react";
 import { register } from "../../../lib/auth";
-import { BACKEND_URL } from "../../../lib/constants";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-interface Language {
-  id: string;
-  name: string;
-}
 
 const RegisterForm = () => {
   const [state, formAction, isPending] = useActionState(register, undefined);
-  const [language, setLanguage] = useState<Language[]>([]);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
-
-  useEffect(() => {
-    const getLanguage = async () => {
-      try {
-        const response = await fetch(`${BACKEND_URL}/language`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-        setLanguage(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getLanguage();
-  }, [state]);
 
   return (
     <div>
@@ -100,32 +65,6 @@ const RegisterForm = () => {
         {state?.error && (
           <p className="text-red-500 text-sm">{state?.error?.password}</p>
         )}
-        <div>
-          <label
-            htmlFor="language"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Langue
-          </label>
-          <Select
-            name="language"
-            value={selectedLanguage}
-            onValueChange={setSelectedLanguage}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Sélectionner une langue" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {language.map((lang) => (
-                  <SelectItem key={lang.id} value={lang.id}>
-                    {lang.name}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
         <button
           type="submit"
           disabled={isPending}
