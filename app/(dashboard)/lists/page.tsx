@@ -123,11 +123,11 @@ export default function Lists() {
                           <Button asChild variant="outline">
                             <Link href={`/cards/${list.id}`}>Cartes</Link>
                           </Button>
-                          <Button asChild variant="outline">
+                          {/* <Button asChild variant="outline">
                             <Link href={`/cards/${list.id}/learn`}>
                               Apprendre
                             </Link>
-                          </Button>
+                          </Button> */}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

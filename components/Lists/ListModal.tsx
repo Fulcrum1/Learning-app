@@ -47,7 +47,7 @@ export default function ListModal({
           </span>
         </Button>
 
-        <DialogContent>
+        <DialogContent className="bg-white dark:bg-gray-800">
           <DialogHeader>
             <DialogTitle>
               {type === "create" ? "Ajouter une liste" : "Modifier une liste"}

@@ -41,7 +41,7 @@ function SingleWord({
       <div className="space-y-2">
         <Label
           htmlFor="word"
-          className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+          className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2"
         >
           Mot
         </Label>
@@ -50,15 +50,20 @@ function SingleWord({
           value={formData.word}
           onChange={handleChange}
           placeholder="Ex: Bonjour"
-          className="border-2 border-gray-200 focus:border-indigo-500 rounded-lg transition-colors"
+          className="
+            border-2 border-gray-200 focus:border-indigo-500 rounded-lg transition-colors
+            dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100
+            dark:placeholder-gray-400 dark:focus:border-indigo-400
+            dark:focus-visible:ring-indigo-400/30
+          "
         />
       </div>
-      <div className="pt-2 border-t-2 border-gray-100">
+      <div className="pt-2 border-t-2 border-gray-100 dark:border-gray-600">
         <div className="space-y-4">
           <div className="space-y-2">
             <Label
               htmlFor="translation"
-              className="text-sm font-semibold text-gray-700"
+              className="text-sm font-semibold text-gray-700 dark:text-gray-200"
             >
               Traduction
             </Label>
@@ -67,13 +72,18 @@ function SingleWord({
               value={formData.translation}
               onChange={handleChange}
               placeholder={`Ex: ${language === "JP" ? "今日は" : "Hello"}`}
-              className="border-2 border-gray-200 focus:border-purple-500 rounded-lg transition-colors text-lg"
+              className="
+                border-2 border-gray-200 focus:border-purple-500 rounded-lg transition-colors text-lg
+                dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100
+                dark:placeholder-gray-400 dark:focus:border-purple-400
+                dark:focus-visible:ring-purple-400/30
+              "
             />
           </div>
           <div className="space-y-2">
             <Label
               htmlFor="pronunciation"
-              className="text-sm font-semibold text-gray-700"
+              className="text-sm font-semibold text-gray-700 dark:text-gray-200"
             >
               Prononciation
             </Label>
@@ -82,7 +92,12 @@ function SingleWord({
               value={formData.pronunciation}
               onChange={handleChange}
               placeholder={`Ex: ${language === "JP" ? "こんにちは" : "Hello"}`}
-              className="border-2 border-gray-200 focus:border-purple-500 rounded-lg transition-colors text-lg"
+              className="
+                border-2 border-gray-200 focus:border-purple-500 rounded-lg transition-colors text-lg
+                dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100
+                dark:placeholder-gray-400 dark:focus:border-purple-400
+                dark:focus-visible:ring-purple-400/30
+              "
             />
           </div>
         </div>
@@ -101,15 +116,15 @@ function MultipleWords({
   const { language } = useLanguage();
   return (
     <div className="space-y-4">
-      <div className="border-2 border-gray-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 mb-2">
+      <div className="border border-gray-500 dark:border-gray-500 rounded-lg p-4 dark:bg-gray-700">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
           📝 Format attendu
         </h3>
-        <p className="text-xs text-gray-700 mb-2">
+        <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
           Collez votre texte contenant les vocabulaires à ajouter. Chaque ligne
           représente un mot.
         </p>
-        <div className="rounded p-2 text-xs font-mono text-gray-600">
+        <div className="rounded p-2 text-xs font-mono text-gray-600 dark:text-gray-300 dark:bg-gray-700 border dark:border-gray-500">
           Exemple :{" "}
           {language === "JP"
             ? "今日(きょう);aujourd'hui ou encore 今日(kyō);aujourd'hui"
@@ -119,7 +134,7 @@ function MultipleWords({
       <div className="space-y-2">
         <Label
           htmlFor="bulkText"
-          className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+          className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2"
         >
           📄 Texte à analyser
         </Label>
@@ -128,7 +143,13 @@ function MultipleWords({
           value={bulkText}
           onChange={(e) => setBulkText(e.target.value)}
           placeholder="Collez ici votre texte contenant plusieurs vocabulaires..."
-          className="w-full min-h-[280px] p-4 border-2 border-gray-200 focus:border-purple-500 rounded-lg transition-colors resize-none text-sm"
+          className="
+            w-full min-h-[280px] p-4 border-2 border-gray-200 focus:border-purple-500
+            rounded-lg transition-colors resize-none text-sm outline-none
+            dark:bg-gray-700 dark:border-gray-500 dark:text-gray-100
+            dark:placeholder-gray-400 dark:focus:border-purple-400
+            dark:focus-visible:ring-2 dark:focus-visible:ring-purple-400/30
+          "
         />
       </div>
     </div>
@@ -172,15 +193,10 @@ export default function WordModal({
 
   const parserTexte = (text: string) => {
     const lines = text.trim().split("\n");
-
     return lines.map((line) => {
       const [translationPronunciation, word] = line.split(";");
-      const [translation, pronunciation] = translationPronunciation?.split(
-        "(",
-      ) || [null, null];
-      const pronunciationClean = pronunciation
-        ? pronunciation.replace(")", "").trim()
-        : null;
+      const [translation, pronunciation] = translationPronunciation?.split("(") || [null, null];
+      const pronunciationClean = pronunciation ? pronunciation.replace(")", "").trim() : null;
       const translationClean = translation?.trim() || "";
       return {
         word: word?.trim() || "",
@@ -194,10 +210,7 @@ export default function WordModal({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = async () => {
@@ -207,15 +220,12 @@ export default function WordModal({
       const user = session?.user.id;
 
       if (type === "update" && wordId) {
-        const response = await apiRequest.put(
-          `${BACKEND_URL}/api/word/${wordId}`,
-          {
-            word: formData.word,
-            translation: formData.translation,
-            pronunciation: formData.pronunciation || null,
-            userId: user,
-          },
-        );
+        await apiRequest.put(`${BACKEND_URL}/api/word/${wordId}`, {
+          word: formData.word,
+          translation: formData.translation,
+          pronunciation: formData.pronunciation || null,
+          userId: user,
+        });
         return;
       }
 
@@ -224,38 +234,20 @@ export default function WordModal({
           word: formData.word,
           translation: formData.translation,
           pronunciation: formData.pronunciation || null,
-          language: language,
+          language,
           user_id: user,
         });
-
-        const responseData = await response;
-        if (!responseData) {
-          throw new Error("Erreur lors de l'ajout du vocabulaire");
-        }
-
-        setFormData({
-          word: "",
-          translation: "",
-          pronunciation: "",
-        });
+        if (!response) throw new Error("Erreur lors de l'ajout du vocabulaire");
+        setFormData({ word: "", translation: "", pronunciation: "" });
       } else {
         const parsedWords = parserTexte(bulkText);
-
-        if (parsedWords.length === 0) {
-          throw new Error("Aucun vocabulaire valide à importer");
-        }
-
+        if (parsedWords.length === 0) throw new Error("Aucun vocabulaire valide à importer");
         const response = await apiRequest.post(`${BACKEND_URL}/api/words`, {
           words: parsedWords,
-          language: language,
+          language,
           user_id: user,
         });
-
-        const responseData = await response;
-        if (!responseData) {
-          throw new Error("Erreur lors de l'ajout des vocabulaires");
-        }
-
+        if (!response) throw new Error("Erreur lors de l'ajout des vocabulaires");
         setBulkText("");
       }
     } catch (error) {
@@ -270,55 +262,73 @@ export default function WordModal({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
           {type === "update" ? (
-            <Button variant="outline" className="text-sm">
+            <Button
+              variant="outline"
+              className="text-sm dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white dark:bg-gray-700"
+            >
               Modifier
             </Button>
           ) : (
-            <Button variant="outline">
+            <Button
+              variant="outline"
+              className="dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white dark:bg-gray-700"
+            >
               <Plus className="w-5 h-5 transition-transform group-hover:rotate-90 duration-300" />
               <span>Ajouter un mot</span>
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[600px] overflow-hidden border-0 shadow-2xl">
-          <DialogHeader>
+
+        <DialogContent
+          className="
+            sm:max-w-[600px] overflow-hidden shadow-2xl bg-white
+            dark:bg-gray-800 dark:shadow-black/50
+            dark:border dark:border-gray-600
+          "
+        >
+          <DialogHeader className="px-6 pt-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-lg">
-                <Languages className="w-6 h-6" />
+              <div className="p-2 rounded-lg dark:bg-gray-600 dark:ring-1 dark:ring-gray-500">
+                <Languages className="w-6 h-6 dark:text-indigo-400" />
               </div>
-              <DialogTitle className="text-2xl font-bold">
+              <DialogTitle className="text-2xl font-bold dark:text-gray-50">
                 {type === "add" ? "Ajouter des mots" : "Modifier un mot"}
               </DialogTitle>
             </div>
-            <DialogDescription>
+            <DialogDescription className="dark:text-gray-300">
               {type === "add"
                 ? "Enrichissez votre collection de mots japonais"
                 : "Modifiez les informations du mot"}
             </DialogDescription>
           </DialogHeader>
+
           {type === "add" && (
-            <div className="px-6 pt-6">
-              <div className="flex gap-3 p-1 rounded-lg">
+            <div className="px-6 pt-4">
+              <div className="flex gap-2 p-1 rounded-lg dark:bg-gray-800 dark:ring-1 dark:ring-gray-600">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   onClick={() => setMode("single")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md font-semibold transition-all ${
-                    mode === "single"
-                      ? " text-indigo-600 shadow-md"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`
+                    flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md font-semibold transition-all text-sm
+                    ${mode === "single"
+                      ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow-sm dark:shadow-black/40 dark:ring-1 dark:ring-gray-500"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-600/50"
+                    }
+                  `}
                 >
                   <Plus className="w-4 h-4" />
                   <span>Un seul Mot</span>
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   onClick={() => setMode("multiple")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md font-semibold transition-all ${
-                    mode === "multiple"
-                      ? "text-purple-600 shadow-md"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`
+                    flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md font-semibold transition-all text-sm
+                    ${mode === "multiple"
+                      ? "bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-300 shadow-sm dark:shadow-black/40 dark:ring-1 dark:ring-gray-500"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-600/50"
+                    }
+                  `}
                 >
                   <FileText className="w-4 h-4" />
                   <span>Plusieurs mots</span>
@@ -326,6 +336,7 @@ export default function WordModal({
               </div>
             </div>
           )}
+
           <div className="p-6">
             {mode === "single" ? (
               <SingleWord formData={formData} handleChange={handleChange} />
@@ -333,12 +344,17 @@ export default function WordModal({
               <MultipleWords bulkText={bulkText} setBulkText={setBulkText} />
             )}
           </div>
-          <DialogFooter className="p-6 gap-3">
+
+          <DialogFooter className="px-6 pb-6 gap-3 border-t dark:border-gray-600 pt-4">
             <DialogClose asChild>
               <Button
                 type="button"
                 variant="outline"
-                className="rounded-lg border-2 hover:bg-gray-100 transition-colors"
+                className="
+                  rounded-lg border-2 hover:bg-gray-100 transition-colors
+                  dark:border-gray-500 dark:text-gray-200 dark:bg-gray-700
+                  dark:hover:bg-gray-600 dark:hover:text-white dark:hover:border-gray-400
+                "
               >
                 Annuler
               </Button>
@@ -346,7 +362,12 @@ export default function WordModal({
             <Button
               onClick={handleSubmit}
               disabled={isLoading}
-              className={`rounded-lg shadow-md hover:shadow-lg transition-all ${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+              className={`
+                rounded-lg shadow-md hover:shadow-lg transition-all
+                dark:bg-indigo-600 dark:hover:bg-indigo-500 dark:text-white
+                dark:shadow-indigo-900/30 dark:focus-visible:ring-indigo-400
+                ${isLoading ? "opacity-75 cursor-not-allowed" : ""}
+              `}
             >
               {isLoading ? (
                 <span className="flex items-center">
@@ -356,19 +377,8 @@ export default function WordModal({
                     fill="none"
                     viewBox="0 0 24 24"
                   >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                   Traitement...
                 </span>

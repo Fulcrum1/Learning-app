@@ -86,15 +86,15 @@ export default function CardsComponent({
   );
 
   const handleUpdateProgress = useCallback(
-    async (wordId: number, isKnown: boolean) => {
+    async (listWordId: number, isKnown: boolean) => {
       const userId = (await getSession()).user.id;
       
       const response = await apiRequest.post(`${BACKEND_URL}/api/card/progress-card/${id}`, {
-        wordId,
+        listWordId,
         isKnown,
         userId,
       });
-      console.log(response)
+      console.log("response", response)
     },
     [id],
   );
@@ -313,13 +313,13 @@ export default function CardsComponent({
               onTouchEnd={handleTouchEnd}
             >
               <div
-                className="flex items-center justify-center h-full flip-card-front text-xl sm:text-4xl md:text-5xl font-bold p-8 rounded-xl"
+                className="flex items-center justify-center h-full flip-card-front text-xl sm:text-4xl md:text-5xl font-bold p-8 rounded-xl select-none"
                 unselectable="on"
               >
                 {currentCard?.front}
               </div>
               <div
-                className="flex items-center justify-center h-full flip-card-back text-xl sm:text-3xl md:text-4xl font-semibold p-8 rounded-xl"
+                className="flex items-center justify-center h-full flip-card-back text-xl sm:text-3xl md:text-4xl font-semibold p-8 rounded-xl select-none"
                 unselectable="on"
               >
                 {currentCard?.back}

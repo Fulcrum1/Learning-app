@@ -90,7 +90,7 @@ const handleRandom = async () => {
 // Modifier handleUpdate pour accepter les paramètres
 const handleUpdate = async (params: { random: boolean; translationOnVerso: boolean }) => {
   const session = await getSession();
-  await fetch(`${BACKEND_URL}/card/param-card`, {
+  await fetch(`${BACKEND_URL}/api/card/param-card/${session?.user.id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
