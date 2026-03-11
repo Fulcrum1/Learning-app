@@ -26,11 +26,7 @@ export default function Words() {
 
       {/* Content */}
       <div className="p-4 sm:p-6 lg:p-8">
-        {/* Desktop Table */}
-        <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-          {/* Words Table */}
-          <WordsList page={"words"} />
-        </div>
+        <WordsList page={"words"} />
       </div>
     </div>
   );

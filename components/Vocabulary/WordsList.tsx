@@ -20,6 +20,7 @@ import WordModal from "./WordModal";
 
 export default function WordsList({ page }: { page: string }) {
   const [words, setWords] = useState<Word[]>([]);
+  const [search, setSearch] = useState("");
   const { language } = useLanguage();
 
   useEffect(() => {
@@ -39,71 +40,82 @@ export default function WordsList({ page }: { page: string }) {
 
   const handleDelete = async (id: number) => {
     const response = await apiRequest.delete(`${BACKEND_URL}/api/word/${id}`);
-    
     if ((response as BaseResponse).data) {
       setWords(words.filter((word) => word.id !== id));
     }
   };
 
+  const filteredWords = words.filter(
+    (word) =>
+      word.word.toLowerCase().includes(search.toLowerCase()) ||
+      word.translation.toLowerCase().includes(search.toLowerCase()) ||
+      (word.pronunciation ?? "").toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <>
+      {/* Search */}
+      <div className="mb-3">
+        <input
+          type="text"
+          placeholder="Rechercher un mot, une traduction, une prononciation..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full px-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+        />
+      </div>
+
       {/* Words Table */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Mot
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Traduction
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Prononciation
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {words && words.length > 0 ? (
-                words.map((word) => (
+              {filteredWords && filteredWords.length > 0 ? (
+                filteredWords.map((word) => (
                   <tr
                     key={word.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {word.word}
-                        </p>
-                      </div>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {word.word}
+                      </p>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="font-medium text-gray-900 dark:text-white">
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {word.translation}
                       </p>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="font-medium text-gray-900 dark:text-white">
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {word.pronunciation}
                       </p>
                     </td>
                     {page === "words" && (
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-2 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          {/* <Button
-                            variant="outline"
-                            className="px-3 py-1 text-sm"
-                          >
-                            Modifier
-                          </Button> */}
                           <WordModal wordId={word.id} type="update" />
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="destructive">Supprimer</Button>
+                              <Button variant="destructive" size="sm">
+                                Supprimer
+                              </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
@@ -113,7 +125,6 @@ export default function WordsList({ page }: { page: string }) {
                                 <AlertDialogDescription>
                                   This action cannot be undone. This will
                                   permanently delete the word from our server.
-                                  servers.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -134,7 +145,10 @@ export default function WordsList({ page }: { page: string }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="h-24 text-center">
+                  <td
+                    colSpan={4}
+                    className="h-16 text-center text-sm text-gray-500"
+                  >
                     Aucun mot trouvé
                   </td>
                 </tr>
