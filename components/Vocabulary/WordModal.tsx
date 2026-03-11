@@ -203,6 +203,8 @@ export default function WordModal({
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
+      const session = await getSession();
+      const user = session?.user.id;
 
       if (type === "update" && wordId) {
         const response = await apiRequest.put(
@@ -211,6 +213,7 @@ export default function WordModal({
             word: formData.word,
             translation: formData.translation,
             pronunciation: formData.pronunciation || null,
+            userId: user,
           },
         );
         return;
@@ -222,6 +225,7 @@ export default function WordModal({
           translation: formData.translation,
           pronunciation: formData.pronunciation || null,
           language: language,
+          user_id: user,
         });
 
         const responseData = await response;
@@ -244,6 +248,7 @@ export default function WordModal({
         const response = await apiRequest.post(`${BACKEND_URL}/api/words`, {
           words: parsedWords,
           language: language,
+          user_id: user,
         });
 
         const responseData = await response;

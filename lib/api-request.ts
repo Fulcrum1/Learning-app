@@ -59,7 +59,7 @@ const request = async (
   includeLanguage = true
 ): Promise<unknown> => {
   const session = await getSession();
-
+console.log(options);
   try {
     const response = await fetch(url, {
       ...options,
