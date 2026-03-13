@@ -57,7 +57,7 @@ export const login = async (
     };
   }
 
-    const response = await fetch(`${BACKEND_URL}/auth/login`, {
+  const response = await fetch(`${BACKEND_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -65,27 +65,26 @@ export const login = async (
     body: JSON.stringify(validatedData.data),
   });
 
-  console.log("Backend response status:", response.status);
-  console.log("Backend response body:", await response.clone().text());
-
   if (response.ok) {
-    try {
-      const result = await response.json();
-      console.log("Result:", result);
-      await createSession({ 
-        user: {
-          id: result.user.id,
-          email: result.user.email,
-          name: result.user.name,
-        },
-        accessToken: result.token,
-      });
-    } catch (err) {
-      console.error("Error after response.ok:", err);
-      return { message: "Session creation failed: " + err };
-    }
+    const result = await response.json();
+    
+    await createSession({
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+      },
+      accessToken: result.token,
+    });
+
     redirect("/");
   } else {
-    return { message: response.status + " " + response.statusText };
+    return {
+      message:
+        response.status === 409
+          ? "Invalid email or password"
+          : // : "Something went wrong",
+            response.statusText,
+    };
   }
 };
