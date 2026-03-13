@@ -14,7 +14,7 @@ export const register = async (
     email: formData.get("email"),
     password: formData.get("password"),
   });
-  console.log({validatedData});
+  
   if (!validatedData.success) {
     return {
       error: validatedData.error.flatten().fieldErrors,
@@ -57,7 +57,7 @@ export const login = async (
     };
   }
 
-  const response = await fetch(`${BACKEND_URL}/auth/login`, {
+    const response = await fetch(`${BACKEND_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -65,26 +65,27 @@ export const login = async (
     body: JSON.stringify(validatedData.data),
   });
 
-  if (response.ok) {
-    const result = await response.json();
-    
-    await createSession({
-      user: {
-        id: result.user.id,
-        email: result.user.email,
-        name: result.user.name,
-      },
-      accessToken: result.token,
-    });
+  console.log("Backend response status:", response.status);
+  console.log("Backend response body:", await response.clone().text());
 
+  if (response.ok) {
+    try {
+      const result = await response.json();
+      console.log("Result:", result);
+      await createSession({ 
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          name: result.user.name,
+        },
+        accessToken: result.token,
+      });
+    } catch (err) {
+      console.error("Error after response.ok:", err);
+      return { message: "Session creation failed: " + err };
+    }
     redirect("/");
   } else {
-    return {
-      message:
-        response.status === 409
-          ? "Invalid email or password"
-          : // : "Something went wrong",
-            response.statusText,
-    };
+    return { message: response.status + " " + response.statusText };
   }
 };
